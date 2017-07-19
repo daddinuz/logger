@@ -12,27 +12,34 @@
 #include "Traits/Traits.h"
 
 static Logger_Message_T gMessage = NULL;
+static Logger_Formatter_T gFormatter = NULL;
 
 static char *formatMessageCallback(Logger_Message_T message);
 static void deleteMessageCallback(char **self);
 
-TRAITS(CanCreateANewLoggerFormatter) {
+TRAITS(CanCreateANewLoggerStreamHandler) {
     sds expected_message = formatMessageCallback(gMessage);
 
-    Logger_Formatter_T sut = Logger_Formatter_new(formatMessageCallback, deleteMessageCallback);
+    Logger_Handler_T sut = Logger_Handler_newStreamHandler(gFormatter, LOGGER_LEVEL_DEBUG, stdout);
     assert_not_null(sut);
 
-    assert_equal(formatMessageCallback, Logger_Formatter_getFormatMessageCallback(sut));
-    assert_equal(deleteMessageCallback, Logger_Formatter_getDeleteMessageCallback(sut));
+    assert_equal(LOGGER_LEVEL_DEBUG, Logger_Handler_getLevel(sut));
+    Logger_Handler_setLevel(sut, LOGGER_LEVEL_INFO);
+    assert_equal(LOGGER_LEVEL_INFO, Logger_Handler_getLevel(sut));
 
-    sds actual_message = Logger_Formatter_formatMessage(sut, gMessage);
-    assert_not_null(actual_message);
-    assert_string_equal(expected_message, actual_message);
+    Logger_Buffer_T result = Logger_Handler_publish(sut, gMessage);
+    assert_not_null(result);
 
-    Logger_Formatter_deleteMessage(sut, &actual_message);
-    assert_null(actual_message);
+    assert_equal(sdslen(expected_message), result->size);
+    assert_string_equal(expected_message, result->data);
+    Logger_Handler_flush(sut);
 
-    Logger_Formatter_delete(&sut);
+    Logger_Formatter_deleteMessage(gFormatter, &result->data);
+    assert_null(result->data);
+    Logger_Buffer_delete(&result);
+    assert_null(result);
+
+    Logger_Handler_delete(&sut);
     assert_null(sut);
 
     sdsfree(expected_message);
@@ -68,11 +75,14 @@ void deleteMessageCallback(char **self) {
 }
 
 int main() {
-    traits_run(CanCreateANewLoggerFormatter);
+    traits_run(CanCreateANewLoggerStreamHandler);
     return 0;
 }
 
 void traits_setup(void) {
+    /*
+     * Message
+     */
     Logger_String_T logger_name = "foo";
     Logger_Level_T level = LOGGER_LEVEL_DEBUG;
     Logger_String_T file = __FILE__;
@@ -91,9 +101,27 @@ void traits_setup(void) {
     assert_string_equal(function, Logger_Message_getFunction(gMessage));
     assert_equal(timestamp, Logger_Message_getTimestamp(gMessage));
     assert_string_equal(text, Logger_Message_getMessage(gMessage));
+
+    /*
+     * Formatter
+     */
+    gFormatter = Logger_Formatter_new(formatMessageCallback, deleteMessageCallback);
+    assert_not_null(gFormatter);
+
+    assert_equal(formatMessageCallback, Logger_Formatter_getFormatMessageCallback(gFormatter));
+    assert_equal(deleteMessageCallback, Logger_Formatter_getDeleteMessageCallback(gFormatter));
 }
 
 void traits_teardown(void) {
+    /*
+     * Message
+     */
     Logger_Message_delete(&gMessage);
     assert_null(gMessage);
+
+    /*
+     * Formatter
+     */
+    Logger_Formatter_delete(&gFormatter);
+    assert_null(gFormatter);
 }
