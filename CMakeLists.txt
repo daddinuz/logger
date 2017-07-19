@@ -9,9 +9,32 @@ if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
 endif ()
 
 #####
-# Archive
+# Woring direcotries
 ###
 include_directories(${PROJECT_SOURCE_DIR}/src)
+include_directories(${PROJECT_SOURCE_DIR}/deps)
+
+#####
+# Dependencies
+###
+include(${PROJECT_SOURCE_DIR}/deps/sds/sds.cmake)
+
+#####
+# Archive
+###
 file(GLOB HEADER_FILES ${PROJECT_SOURCE_DIR}/src/*.h)
 file(GLOB SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.c)
 add_library(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} PRIVATE sds)
+
+#####
+# Tests
+###
+add_executable(test_logger_message test/test_logger_message.c)
+target_link_libraries(test_logger_message PRIVATE ${PROJECT_NAME})
+
+#####
+# Examples
+###
+add_executable(example examples/example.c)
+target_link_libraries(example PRIVATE ${PROJECT_NAME})
