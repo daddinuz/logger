@@ -15,6 +15,36 @@
 #include "logger.h"
 
 /*
+ * Levels
+ */
+static Logger_String_T LOGGER_LEVEL_DEBUG_STR = "DEBUG";
+static Logger_String_T LOGGER_LEVEL_NOTICE_STR = "NOTICE";
+static Logger_String_T LOGGER_LEVEL_INFO_STR = "INFO";
+static Logger_String_T LOGGER_LEVEL_WARNING_STR = "WARNING";
+static Logger_String_T LOGGER_LEVEL_ERROR_STR = "ERROR";
+static Logger_String_T LOGGER_LEVEL_FATAL_STR = "FATAL";
+
+Logger_String_T Logger_Level_name(Logger_Level_T level) {
+    assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
+    switch (level) {
+        case LOGGER_LEVEL_DEBUG:
+            return LOGGER_LEVEL_DEBUG_STR;
+        case LOGGER_LEVEL_NOTICE:
+            return LOGGER_LEVEL_NOTICE_STR;
+        case LOGGER_LEVEL_INFO:
+            return LOGGER_LEVEL_INFO_STR;
+        case LOGGER_LEVEL_WARNING:
+            return LOGGER_LEVEL_WARNING_STR;
+        case LOGGER_LEVEL_ERROR:
+            return LOGGER_LEVEL_ERROR_STR;
+        case LOGGER_LEVEL_FATAL:
+            return LOGGER_LEVEL_FATAL_STR;
+        default:
+            abort();
+    };
+}
+
+/*
  * Messages
  */
 struct Logger_Message_T {
@@ -94,6 +124,42 @@ void Logger_Message_delete(Logger_Message_T *self) {
     assert(self);
     assert(*self);
     sdsfree((*self)->message);
+    free(*self);
+    *self = NULL;
+}
+
+/*
+ * Formatters
+ */
+struct Logger_Formatter_T {
+    Logger_Formatter_Callback_T callback;
+};
+
+Logger_Formatter_T Logger_Formatter_new(Logger_Formatter_Callback_T callback) {
+    assert(callback);
+    Logger_Formatter_T self = malloc(sizeof(*self));
+    if (!self) {
+        errno = ENOMEM;
+        return NULL;
+    }
+    self->callback = callback;
+    return self;
+}
+
+Logger_Formatter_Callback_T Logger_Formatter_getCallback(Logger_Formatter_T self) {
+    assert(self);
+    return self->callback;
+}
+
+char *Logger_Formatter_format(Logger_Formatter_T self, Logger_Message_T message) {
+    assert(self);
+    assert(message);
+    return self->callback(message);
+}
+
+void Logger_Formatter_delete(Logger_Formatter_T *self) {
+    assert(self);
+    assert(*self);
     free(*self);
     *self = NULL;
 }

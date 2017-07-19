@@ -33,6 +33,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE sds)
 add_executable(test_logger_message test/test_logger_message.c)
 target_link_libraries(test_logger_message PRIVATE ${PROJECT_NAME})
 
+add_executable(test_logger_formatter test/test_logger_formatter.c)
+target_link_libraries(test_logger_formatter PRIVATE ${PROJECT_NAME})
+
 #####
 # Examples
 ###

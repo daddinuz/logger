@@ -19,14 +19,23 @@
 extern "C" {
 #endif
 
+/*
+ * Strings
+ */
 typedef const char *Logger_String_T;
 
+/*
+ * Modes
+ */
 typedef enum Logger_Mode_T {
     LOGGER_MODE_UNDEFINED = 0,
     LOGGER_MODE_TRUNCATE,
     LOGGER_MODE_APPEND,
 } Logger_Mode_T;
 
+/*
+ * Levels
+ */
 typedef enum Logger_Level_T {
     LOGGER_LEVEL_DEBUG = 0,
     LOGGER_LEVEL_NOTICE,
@@ -35,6 +44,17 @@ typedef enum Logger_Level_T {
     LOGGER_LEVEL_ERROR,
     LOGGER_LEVEL_FATAL
 } Logger_Level_T;
+
+/**
+ * Returns the string version of the Logger_Level_T.
+ *
+ * Checked runtime errors:
+ *  - @param level must be a valid Logger_Level_T.
+ *
+ * @param level The log level.
+ * @return The string version of the Logger_Level_T.
+ */
+extern Logger_String_T Logger_Level_name(Logger_Level_T level);
 
 /*
  * Messages
@@ -63,6 +83,7 @@ typedef struct Logger_Message_T *Logger_Message_T;
  * @param ... Vararg printf-like formatting
  * @return A new instance of Logger_Message_T.
  */
+/* TODO: understand if this should be exposed */
 extern Logger_Message_T Logger_Message_new(Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line, Logger_String_T function, time_t timestamp, const char *fmt, ...);
 
 /**
@@ -155,27 +176,59 @@ extern void Logger_Message_delete(Logger_Message_T *self);
 /*
  * Formatters
  */
+
 typedef struct Logger_Formatter_T *Logger_Formatter_T;
 
 /**
- * Allocate and initialize a Logger_Formatter_T.
- *
- * Checked runtime errors:
- *  - format must no be NULL.
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
- *
- * @param format Formatting string
- * @return A new instance of Logger_Formatter_T
+ * In case of OOM this function should return NULL and set errno to ENOMEM
  */
-extern Logger_Formatter_T Logger_Formatter_new(Logger_String_T format);
+typedef char *(*Logger_Formatter_Callback_T)(Logger_Message_T message);
 
 /**
- *  the message string from a log record.
+ * Allocates and initializes a Logger_Formatter_T.
  *
- * @param message
- * @return
+ * Checked runtime errors:
+ *  - @param callback must not be NULL.
+ *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *
+ * @param callback Formatter function that will be called by Logger_Formatter_format.
+ * @return A new instance of Logger_Formatter_T.
  */
-extern Logger_String_T Logger_Formatter_format(Logger_String_T message);
+extern Logger_Formatter_T Logger_Formatter_new(Logger_Formatter_Callback_T callback);
+
+/**
+ * Returns the formatter callback.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *
+ * @param self A Logger_Formatter_T instance.
+ * @return The formatter callback.
+ */
+extern Logger_Formatter_Callback_T Logger_Formatter_getCallback(Logger_Formatter_T self);
+
+/**
+ * Format the message as specified by callback.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *  - @param message must not be NULL.
+ *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *
+ * @param self A Logger_Formatter_T instance.
+ * @param message A Logger_Message_T instance.
+ * @return The formatted message.
+ */
+extern char *Logger_Formatter_format(Logger_Formatter_T self, Logger_Message_T message);
+
+/**
+ * Deletes a Logger_Formatter_T instance and frees its memory then sets self to NULL.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL and must be a valid reference to a Logger_Formatter_T instance.
+ *
+ * @param self The reference to the Logger_Formatter_T instance.
+ */
 extern void Logger_Formatter_delete(Logger_Formatter_T *self);
 
 /*
