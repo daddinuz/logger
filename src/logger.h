@@ -3,7 +3,7 @@
  *
  * Author: daddinuz
  * email:  daddinuz@gmail.com
- * Date:   July 19, 2017 
+ * Date:   July 19, 2017
  */
 
 #ifndef LOGGER_LOGGER_INCLUDED
@@ -219,8 +219,8 @@ typedef char *(*Logger_Formatter_formatMessageCallback_T)(Logger_Message_T messa
 
 /**
  * This function is used to free the memory allocated by Logger_Formatter_formatMessageCallback_T.
- * 
- * Before return this function must set the reference of self to NULL. 
+ *
+ * Before return this function must set the reference of self to NULL.
  */
 typedef void (*Logger_Formatter_deleteMessageCallback_T)(char **self);
 
@@ -385,22 +385,134 @@ extern void Logger_Handler_delete(Logger_Handler_T *self);
  */
 typedef struct Logger_T *Logger_T;
 
+/**
+ * Allocates and initializes a new Logger_T instance.
+ *
+ * Checked runtime errors:
+ *  - @param name must not be NULL.
+ *  - @param level must be a valid Logger_Level_T.
+ *  - In case of OOM this function will return NULL and errno is set to ENOMEM.
+ *
+ * @param name The logger name.
+ * @param level The logger level.
+ * @return A new Logger_T instance.
+ */
 extern Logger_T Logger_new(Logger_String_T name, Logger_Level_T level);
 
+/**
+ * Sets name for the specific logger.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *  - @param name must not be NULL.
+ *  - In case of OOM this function will return NULL and errno is set to ENOMEM.
+ *
+ * @param self The Logger_T instance.
+ * @param name The new name for the logger.
+ * @return The new logger name.
+ */
+extern Logger_String_T Logger_setName(Logger_T self, Logger_String_T name);
+
+/**
+ * Gets the name of the specific logger.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *
+ * @param self The Logger_T instance.
+ * @return The logger name.
+ */
+extern Logger_String_T Logger_getName(Logger_T self);
+
+/**
+ * Sets level for the specific logger.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *  - @param level must be a valid Logger_Level_T.
+ *
+ * @param self The Logger_T instance.
+ * @param level The level to set.
+ */
 extern void Logger_setLevel(Logger_T self, Logger_Level_T level);
+
+/**
+ * Gets the level for the specific logger.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *
+ * @param self The Logger_T instance.
+ * @return The logging level for the logger.
+ */
 extern Logger_Level_T Logger_getLevel(Logger_T self);
 
-extern void Logger_addHandler(Logger_T self, Logger_Handler_T handler);
+/**
+ * Adds a new hanlder to the specific logger.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *  - @param hanlder must not be NULL.
+ *  - In case of OOM this function will return NULL and errno is set to ENOMEM.
+ *
+ * @param self The Logger_T instance.
+ * @param hanlder The Logger_Handler_T instance to be added.
+ * @return The added hanlder; *
+ */
+extern Logger_Handler_T Logger_addHandler(Logger_T self, Logger_Handler_T handler);
+
+/**
+ * Removes a handler from the logger.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL;
+ *  - @param handler must not be NULL;
+ *
+ * @param self The Logger_T instance.
+ * @param handler The handler to be removed.
+ */
 extern void Logger_removeHandler(Logger_T self, Logger_Handler_T handler);
 
-extern void Logger_logDebug(Logger_T self, Logger_String_T message, ...);
-extern void Logger_logNotice(Logger_T self, Logger_String_T message, ...);
-extern void Logger_logInfo(Logger_T self, Logger_String_T message, ...);
-extern void Logger_logWarning(Logger_T self, Logger_String_T message, ...);
-extern void Logger_logError(Logger_T self, Logger_String_T message, ...);
-extern void Logger_logFatal(Logger_T self, Logger_String_T message, ...);
+/**
+ * Logs the message.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *  - @param level must be a valid Logger_Level_T.
+ *  - @param file must not be NULL.
+ *  - @param function must not be NULL.
+ *  - @param fmt must not be NULL.
+ *
+ * @param self The Logger_T instance.
+ * @param level The log level.
+ * @param file The file in which this function has been called.
+ * @param line The line of the file in which this function has been called.
+ * @param function The outer function in which this function has been called.
+ * @param timestamp The timestamp in which this function has been called.
+ * @param fmt A printf-like format string.
+ * @param ... The fmt arguments.
+ */
+/* TODO: Error handling */
+extern void _Logger_log(Logger_T self, Logger_Level_T level, Logger_String_T file, size_t line, Logger_String_T function, time_t timestamp, const char *fmt, ...);
 
-extern Logger_T Logger_delete(Logger_T *self);
+#define Logger_log(self, level, fmt, ...)      _Logger_log(self, level, __FILE__, __LINE__, __func__, time(NULL), fmt, __VA_ARGS__)
+
+#define Logger_logDebug(self, fmt, ...)        Logger_log(self, LOGGER_LEVEL_DEBUG, fmt, __VA_ARGS__)
+#define Logger_logNotice(self, fmt, ...)       Logger_log(self, LOGGER_LEVEL_NOTICE, fmt, __VA_ARGS__)
+#define Logger_logInfo(self, fmt, ...)         Logger_log(self, LOGGER_LEVEL_INFO, fmt, __VA_ARGS__)
+#define Logger_logWarning(self, fmt, ...)      Logger_log(self, LOGGER_LEVEL_WARNING, fmt, __VA_ARGS__)
+#define Logger_logError(self, fmt, ...)        Logger_log(self, LOGGER_LEVEL_ERROR, fmt, __VA_ARGS__)
+#define Logger_logFatal(self, fmt, ...)        Logger_log(self, LOGGER_LEVEL_FATAL, fmt, __VA_ARGS__)
+
+/**
+ * Deletes a Logger_T instance and frees its memory then sets self to NULL.
+ *
+ * Checked runtime errors:
+ *  - @param self must be a valid reference to a Logger_T instance.
+ *
+ * @param self The reference to the Logger_T instance.
+ */
+extern void Logger_delete(Logger_T *self);
 
 #ifdef __cplusplus
 }

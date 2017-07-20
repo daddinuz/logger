@@ -3,7 +3,7 @@
  *
  * Author: daddinuz
  * email:  daddinuz@gmail.com
- * Date:   July 19, 2017 
+ * Date:   July 19, 2017
  */
 
 #include <stdlib.h>
@@ -282,6 +282,158 @@ Logger_Level_T Logger_Handler_getLevel(Logger_Handler_T self) {
 void Logger_Handler_delete(Logger_Handler_T *self) {
     assert(self);
     assert(*self);
+    free(*self);
+    *self = NULL;
+}
+
+/*
+ * Loggers
+ */
+typedef struct Logger_Handler_List_T {
+    Logger_Handler_T handler;
+    struct Logger_Handler_List_T *next;
+} *Logger_Handler_List_T;
+
+static Logger_Handler_List_T Logger_Handler_List_new(Logger_Handler_T handler, Logger_Handler_List_T next) {
+    assert(handler);
+    Logger_Handler_List_T self = malloc(sizeof(*self));
+    if (!self) {
+        errno = ENOMEM;
+        return NULL;
+    }
+    self->handler = handler;
+    self->next = next;
+    return self;
+}
+
+static void Logger_Handler_List_delete(Logger_Handler_List_T *self) {
+    assert(self);
+    assert(*self);
+    free(*self);
+    *self = NULL;
+}
+
+struct Logger_T {
+    sds name;
+    Logger_Level_T level;
+    Logger_Handler_List_T handlers;
+};
+
+Logger_T Logger_new(Logger_String_T name, Logger_Level_T level) {
+    assert(name);
+    assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
+    Logger_T self = malloc(sizeof(*self));
+    if (!self) {
+        errno = ENOMEM;
+        return NULL;
+    }
+    self->name = sdsnew(name);
+    if (!self->name) {
+        free(self);
+        errno = ENOMEM;
+        return NULL;
+    }
+    self->level = level;
+    self->handlers = NULL;
+    return self;
+}
+
+Logger_String_T Logger_setName(Logger_T self, Logger_String_T name) {
+    assert(self);
+    assert(name);
+    sds new_name = sdsnew(name);
+    if (!new_name) {
+        errno = ENOMEM;
+        return NULL;
+    }
+    sdsfree(self->name);
+    self->name = new_name;
+    return self->name;
+}
+
+Logger_String_T Logger_getName(Logger_T self) {
+    assert(self);
+    return self->name;
+}
+
+void Logger_setLevel(Logger_T self, Logger_Level_T level) {
+    assert(self);
+    assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
+    self->level = level;
+}
+
+Logger_Level_T Logger_getLevel(Logger_T self) {
+    assert(self);
+    return self->level;
+}
+
+Logger_Handler_T Logger_addHandler(Logger_T self, Logger_Handler_T handler) {
+    assert(self);
+    assert(handler);
+    Logger_Handler_List_T head = Logger_Handler_List_new(handler, self->handlers);
+    if (!head) {
+        errno = ENOMEM;
+        return NULL;
+    }
+    self->handlers = head;
+    return head->handler;
+}
+
+void Logger_removeHandler(Logger_T self, Logger_Handler_T handler) {
+    assert(self);
+    assert(handler);
+    Logger_Handler_List_T prev = NULL, base = self->handlers;
+    while (base) {
+        if (base->handler == handler) {
+            if (prev) {
+                prev->next = base->next;
+            } else {
+                self->handlers = base->next;
+            }
+            Logger_Handler_List_delete(&base);
+            break;
+        }
+        prev = base;
+        base = base->next;
+    }
+}
+
+void _Logger_log(Logger_T self, Logger_Level_T level, Logger_String_T file, size_t line, Logger_String_T function, time_t timestamp, const char *fmt, ...) {
+    /* TODO: Error handling */
+    assert(self);
+    assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
+    assert(file);
+    assert(function);
+    assert(fmt);
+    if (level >= self->level) {
+        va_list args;
+        va_start(args, fmt);
+        Logger_Message_T message = Logger_Message_new(self->name, level, file, line, function, timestamp, fmt, args);
+        Logger_Buffer_T buffer = NULL;
+        Logger_Handler_T handler = NULL;
+        Logger_Handler_List_T base = NULL;
+        for (base = self->handlers; base; base = base->next) {
+            handler = base->handler;
+            if (level >= handler->level) {
+                buffer = Logger_Handler_publish(handler, message);
+                Logger_Formatter_deleteMessage(handler->formatter, &buffer->data);
+                Logger_Buffer_delete(&buffer);
+            }
+        }
+        Logger_Message_delete(&message);
+        va_end(args);
+    }
+}
+
+void Logger_delete(Logger_T *self) {
+    assert(self);
+    assert(*self);
+    sdsfree((*self)->name);
+    Logger_Handler_List_T current, next;
+    for (current = (*self)->handlers, next = NULL; current; current = next) {
+        next = current->next;
+        Logger_Handler_List_delete(&current);
+    }
     free(*self);
     *self = NULL;
 }
