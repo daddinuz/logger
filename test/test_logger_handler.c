@@ -31,11 +31,11 @@ TRAITS(CanCreateANewLoggerStreamHandler) {
     assert_not_null(result);
 
     assert_equal(sdslen(expected_message), result->size);
-    assert_string_equal(expected_message, result->data);
+    assert_string_equal(expected_message, result->content);
     Logger_Handler_flush(sut);
 
-    Logger_Formatter_deleteMessage(gFormatter, &result->data);
-    assert_null(result->data);
+    Logger_Formatter_deleteMessage(gFormatter, &result->content);
+    assert_null(result->content);
     Logger_Buffer_delete(&result);
     assert_null(result);
 
@@ -55,12 +55,12 @@ char *formatMessageCallback(Logger_Message_T message) {
     sds result = sdscatprintf(
             sdsempty(), "%s [%s] %s %s:%zu:%s\n%s",
             Logger_Message_getLoggerName(message),
-            Logger_Level_name(Logger_Message_getLevel(message)),
+            Logger_Level_getName(Logger_Message_getLevel(message)),
             time_string,
             Logger_Message_getFile(message),
             Logger_Message_getLine(message),
             Logger_Message_getFunction(message),
-            Logger_Message_getMessage(message)
+            Logger_Message_getContent(message)
     );
     if (!result) {
         errno = ENOMEM;
@@ -101,7 +101,7 @@ void traits_setup(void) {
     assert_equal(line, Logger_Message_getLine(gMessage));
     assert_string_equal(function, Logger_Message_getFunction(gMessage));
     assert_equal(timestamp, Logger_Message_getTimestamp(gMessage));
-    assert_string_equal(text, Logger_Message_getMessage(gMessage));
+    assert_string_equal(text, Logger_Message_getContent(gMessage));
 
     /*
      * Formatter
@@ -109,8 +109,8 @@ void traits_setup(void) {
     gFormatter = Logger_Formatter_new(formatMessageCallback, deleteMessageCallback);
     assert_not_null(gFormatter);
 
-    assert_equal(formatMessageCallback, Logger_Formatter_getFormatMessageCallback(gFormatter));
-    assert_equal(deleteMessageCallback, Logger_Formatter_getDeleteMessageCallback(gFormatter));
+    assert_equal(formatMessageCallback, Logger_Formatter_getFormatContentCallback(gFormatter));
+    assert_equal(deleteMessageCallback, Logger_Formatter_getDeleteContentCallback(gFormatter));
 }
 
 void traits_teardown(void) {

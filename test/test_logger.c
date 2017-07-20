@@ -85,12 +85,12 @@ char *formatMessageCallback(Logger_Message_T message) {
     sds result = sdscatprintf(
             sdsempty(), "%s [%s] %s %s:%zu:%s\n%s",
             Logger_Message_getLoggerName(message),
-            Logger_Level_name(Logger_Message_getLevel(message)),
+            Logger_Level_getName(Logger_Message_getLevel(message)),
             time_string,
             Logger_Message_getFile(message),
             Logger_Message_getLine(message),
             Logger_Message_getFunction(message),
-            Logger_Message_getMessage(message)
+            Logger_Message_getContent(message)
     );
     if (!result) {
         errno = ENOMEM;
@@ -117,8 +117,8 @@ void traits_setup(void) {
     gFormatter = Logger_Formatter_new(formatMessageCallback, deleteMessageCallback);
     assert_not_null(gFormatter);
 
-    assert_equal(formatMessageCallback, Logger_Formatter_getFormatMessageCallback(gFormatter));
-    assert_equal(deleteMessageCallback, Logger_Formatter_getDeleteMessageCallback(gFormatter));
+    assert_equal(formatMessageCallback, Logger_Formatter_getFormatContentCallback(gFormatter));
+    assert_equal(deleteMessageCallback, Logger_Formatter_getDeleteContentCallback(gFormatter));
 
     /*
      * Handler

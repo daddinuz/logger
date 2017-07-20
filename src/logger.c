@@ -17,15 +17,15 @@
 /*
  * Buffers
  */
-Logger_Buffer_T Logger_Buffer_new(size_t size, char *data) {
-    assert(data);
+Logger_Buffer_T Logger_Buffer_new(size_t size, char *content) {
+    assert(content);
     Logger_Buffer_T self = malloc(sizeof(*self));
     if (!self) {
         errno = ENOMEM;
         return NULL;
     }
     self->size = size;
-    self->data = data;
+    self->content = content;
     return self;
 }
 
@@ -46,7 +46,7 @@ static Logger_String_T LOGGER_LEVEL_WARNING_STR = "WARNING";
 static Logger_String_T LOGGER_LEVEL_ERROR_STR = "ERROR";
 static Logger_String_T LOGGER_LEVEL_FATAL_STR = "FATAL";
 
-Logger_String_T Logger_Level_name(Logger_Level_T level) {
+Logger_String_T Logger_Level_getName(Logger_Level_T level) {
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
     switch (level) {
         case LOGGER_LEVEL_DEBUG:
@@ -76,7 +76,7 @@ struct Logger_Message_T {
     size_t line;
     Logger_String_T function;
     time_t timestamp;
-    sds message;
+    sds content;
 };
 
 Logger_Message_T Logger_Message_make(
@@ -94,8 +94,15 @@ Logger_Message_T Logger_Message_make(
         errno = ENOMEM;
         return NULL;
     }
-    self->message = sdscatvprintf(sdsempty(), fmt, args);
-    if (!self->message) {
+    sds dummy = sdsempty();
+    if (!dummy) {
+        free(self);
+        errno = ENOMEM;
+        return NULL;
+    }
+    self->content = sdscatvprintf(dummy, fmt, args);
+    if (!self->content) {
+        sdsfree(dummy);
         free(self);
         errno = ENOMEM;
         return NULL;
@@ -159,15 +166,15 @@ time_t Logger_Message_getTimestamp(Logger_Message_T self) {
     return self->timestamp;
 }
 
-Logger_String_T Logger_Message_getMessage(Logger_Message_T self) {
+Logger_String_T Logger_Message_getContent(Logger_Message_T self) {
     assert(self);
-    return self->message;
+    return self->content;
 }
 
 void Logger_Message_delete(Logger_Message_T *self) {
     assert(self);
     assert(*self);
-    sdsfree((*self)->message);
+    sdsfree((*self)->content);
     free(*self);
     *self = NULL;
 }
@@ -176,32 +183,32 @@ void Logger_Message_delete(Logger_Message_T *self) {
  * Formatters
  */
 struct Logger_Formatter_T {
-    Logger_Formatter_formatMessageCallback_T formatMessageCallback;
-    Logger_Formatter_deleteMessageCallback_T deleteMessageCallback;
+    Logger_Formatter_formatContentCallback_T formatMessageCallback;
+    Logger_Formatter_deleteContentCallback_T deleteMessageCallback;
 };
 
 Logger_Formatter_T Logger_Formatter_new(
-        Logger_Formatter_formatMessageCallback_T formatMessageCallback,
-        Logger_Formatter_deleteMessageCallback_T deleteMessageCallback
+        Logger_Formatter_formatContentCallback_T formatContentCallback,
+        Logger_Formatter_deleteContentCallback_T deleteContentCallback
 ) {
-    assert(formatMessageCallback);
-    assert(deleteMessageCallback);
+    assert(formatContentCallback);
+    assert(deleteContentCallback);
     Logger_Formatter_T self = malloc(sizeof(*self));
     if (!self) {
         errno = ENOMEM;
         return NULL;
     }
-    self->formatMessageCallback = formatMessageCallback;
-    self->deleteMessageCallback = deleteMessageCallback;
+    self->formatMessageCallback = formatContentCallback;
+    self->deleteMessageCallback = deleteContentCallback;
     return self;
 }
 
-Logger_Formatter_formatMessageCallback_T Logger_Formatter_getFormatMessageCallback(Logger_Formatter_T self) {
+Logger_Formatter_formatContentCallback_T Logger_Formatter_getFormatContentCallback(Logger_Formatter_T self) {
     assert(self);
     return self->formatMessageCallback;
 }
 
-Logger_Formatter_deleteMessageCallback_T Logger_Formatter_getDeleteMessageCallback(Logger_Formatter_T self) {
+Logger_Formatter_deleteContentCallback_T Logger_Formatter_getDeleteContentCallback(Logger_Formatter_T self) {
     assert(self);
     return self->deleteMessageCallback;
 }
@@ -444,7 +451,7 @@ void _Logger_log(
             handler = base->handler;
             if (level >= handler->level) {
                 buffer = Logger_Handler_publish(handler, message);
-                Logger_Formatter_deleteMessage(handler->formatter, &buffer->data);
+                Logger_Formatter_deleteMessage(handler->formatter, &buffer->content);
                 Logger_Buffer_delete(&buffer);
             }
         }
@@ -458,7 +465,7 @@ void Logger_delete(Logger_T *self) {
     assert(*self);
     sdsfree((*self)->name);
     Logger_Handler_List_T current, next;
-    for (current = (*self)->handlers, next = NULL; current; current = next) {
+    for (current = (*self)->handlers; current; current = next) {
         next = current->next;
         Logger_Handler_List_delete(&current);
     }

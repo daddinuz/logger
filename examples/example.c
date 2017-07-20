@@ -52,12 +52,12 @@ char *formatMessageCallback(Logger_Message_T message) {
             sdsempty(),
             "%s [%s] %s %s:%zu:%s\n%s",
             Logger_Message_getLoggerName(message),
-            Logger_Level_name(Logger_Message_getLevel(message)),
+            Logger_Level_getName(Logger_Message_getLevel(message)),
             time_string,
             Logger_Message_getFile(message),
             Logger_Message_getLine(message),
             Logger_Message_getFunction(message),
-            Logger_Message_getMessage(message)
+            Logger_Message_getContent(message)
     );
     if (!result) {
         errno = ENOMEM;

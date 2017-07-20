@@ -18,9 +18,9 @@ TRAITS(CanCreateANewLoggerMessage) {
     size_t line = __LINE__;
     Logger_String_T function = __func__;
     time_t timestamp = time(NULL);
-    Logger_String_T message = "Hello World!\n";
+    Logger_String_T content = "Hello World!\n";
 
-    Logger_Message_T sut = Logger_Message_new(logger_name, level, file, line, function, timestamp, "%s", message);
+    Logger_Message_T sut = Logger_Message_new(logger_name, level, file, line, function, timestamp, "%s", content);
     assert_not_null(sut);
 
     assert_string_equal(logger_name, Logger_Message_getLoggerName(sut));
@@ -29,7 +29,7 @@ TRAITS(CanCreateANewLoggerMessage) {
     assert_equal(line, Logger_Message_getLine(sut));
     assert_string_equal(function, Logger_Message_getFunction(sut));
     assert_equal(timestamp, Logger_Message_getTimestamp(sut));
-    assert_string_equal(message, Logger_Message_getMessage(sut));
+    assert_string_equal(content, Logger_Message_getContent(sut));
 
     Logger_Message_delete(&sut);
     assert_null(sut);

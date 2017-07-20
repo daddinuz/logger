@@ -17,7 +17,7 @@ TRAITS(CanCreateANewLoggerBuffer) {
     assert_not_null(sut);
 
     assert_equal(sdslen(data), sut->size);
-    assert_string_equal(data, sut->data);
+    assert_string_equal(data, sut->content);
 
     Logger_Buffer_delete(&sut);
     assert_null(sut);
