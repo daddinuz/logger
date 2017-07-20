@@ -79,9 +79,10 @@ struct Logger_Message_T {
     sds message;
 };
 
-Logger_Message_T
-Logger_Message_make(Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
-                    Logger_String_T function, time_t timestamp, const char *fmt, va_list args) {
+Logger_Message_T Logger_Message_make(
+        Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
+        Logger_String_T function, time_t timestamp, const char *fmt, va_list args
+) {
     assert(logger_name);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
     assert(file);
@@ -108,9 +109,10 @@ Logger_Message_make(Logger_String_T logger_name, Logger_Level_T level, Logger_St
     return self;
 }
 
-Logger_Message_T
-Logger_Message_new(Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
-                   Logger_String_T function, time_t timestamp, const char *fmt, ...) {
+Logger_Message_T Logger_Message_new(
+        Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
+        Logger_String_T function, time_t timestamp, const char *fmt, ...
+) {
     assert(logger_name);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
     assert(file);
@@ -178,8 +180,10 @@ struct Logger_Formatter_T {
     Logger_Formatter_deleteMessageCallback_T deleteMessageCallback;
 };
 
-Logger_Formatter_T Logger_Formatter_new(Logger_Formatter_formatMessageCallback_T formatMessageCallback,
-                                        Logger_Formatter_deleteMessageCallback_T deleteMessageCallback) {
+Logger_Formatter_T Logger_Formatter_new(
+        Logger_Formatter_formatMessageCallback_T formatMessageCallback,
+        Logger_Formatter_deleteMessageCallback_T deleteMessageCallback
+) {
     assert(formatMessageCallback);
     assert(deleteMessageCallback);
     Logger_Formatter_T self = malloc(sizeof(*self));
@@ -419,9 +423,10 @@ void Logger_removeHandler(Logger_T self, Logger_Handler_T handler) {
     }
 }
 
-void
-_Logger_log(Logger_T self, Logger_Level_T level, Logger_String_T file, size_t line, Logger_String_T function,
-            time_t timestamp, const char *fmt, ...) {
+void _Logger_log(
+        Logger_T self, Logger_Level_T level, Logger_String_T file, size_t line, Logger_String_T function,
+        time_t timestamp, const char *fmt, ...
+) {
     /* TODO: Error handling */
     assert(self);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);

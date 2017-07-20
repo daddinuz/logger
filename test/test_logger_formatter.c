@@ -45,14 +45,15 @@ char *formatMessageCallback(Logger_Message_T message) {
     char time_string[32] = "";
     time_t timestamp = Logger_Message_getTimestamp(message);
     strftime(time_string, sizeof(time_string) / sizeof(time_string[0]), "%Y-%m-%d %H:%M:%S", localtime(&timestamp));
-    sds result = sdscatprintf(sdsempty(), "%s [%s] %s %s:%zu:%s\n%s",
-                              Logger_Message_getLoggerName(message),
-                              Logger_Level_name(Logger_Message_getLevel(message)),
-                              time_string,
-                              Logger_Message_getFile(message),
-                              Logger_Message_getLine(message),
-                              Logger_Message_getFunction(message),
-                              Logger_Message_getMessage(message)
+    sds result = sdscatprintf(
+            sdsempty(), "%s [%s] %s %s:%zu:%s\n%s",
+            Logger_Message_getLoggerName(message),
+            Logger_Level_name(Logger_Message_getLevel(message)),
+            time_string,
+            Logger_Message_getFile(message),
+            Logger_Message_getLine(message),
+            Logger_Message_getFunction(message),
+            Logger_Message_getMessage(message)
     );
     if (!result) {
         errno = ENOMEM;

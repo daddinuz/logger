@@ -113,9 +113,10 @@ typedef struct Logger_Message_T *Logger_Message_T;
  * @param args The arguments list for fmt.
  * @return A new instance of Logger_Message_T.
  */
-extern Logger_Message_T
-Logger_Message_make(Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
-                    Logger_String_T function, time_t timestamp, const char *fmt, va_list args);
+extern Logger_Message_T Logger_Message_make(
+        Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
+        Logger_String_T function, time_t timestamp, const char *fmt, va_list args
+);
 
 /**
  * Allocates and initializes a new Logger_Message_T.
@@ -138,9 +139,10 @@ Logger_Message_make(Logger_String_T logger_name, Logger_Level_T level, Logger_St
  * @param ... The arguments for fmt.
  * @return A new instance of Logger_Message_T.
  */
-extern Logger_Message_T
-Logger_Message_new(Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
-                   Logger_String_T function, time_t timestamp, const char *fmt, ...);
+extern Logger_Message_T Logger_Message_new(
+        Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
+        Logger_String_T function, time_t timestamp, const char *fmt, ...
+);
 
 /**
  * Returns the name of the logger that has built this message.
@@ -262,8 +264,10 @@ typedef void (*Logger_Formatter_deleteMessageCallback_T)(char **self);
  * @param deleteMessageCallback Destructor function that will be called by Logger_Formatter_deleteMessage.
  * @return A new instance of Logger_Formatter_T.
  */
-extern Logger_Formatter_T Logger_Formatter_new(Logger_Formatter_formatMessageCallback_T formatMessageCallback,
-                                               Logger_Formatter_deleteMessageCallback_T deleteMessageCallback);
+extern Logger_Formatter_T Logger_Formatter_new(
+        Logger_Formatter_formatMessageCallback_T formatMessageCallback,
+        Logger_Formatter_deleteMessageCallback_T deleteMessageCallback
+);
 
 /**
  * Returns the formatter callback.
@@ -345,17 +349,20 @@ typedef struct Logger_Handler_T *Logger_Handler_T;
 extern Logger_Handler_T
 Logger_Handler_newStreamHandler(Logger_Formatter_T formatter, Logger_Level_T level, FILE *stream);
 
-extern Logger_Handler_T
-Logger_Handler_newFileHandler(Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path,
-                              Logger_Mode_T mode);
+extern Logger_Handler_T Logger_Handler_newFileHandler(
+        Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path,
+        Logger_Mode_T mode
+);
 
-extern Logger_Handler_T
-Logger_Handler_newRotatingHandler(Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path,
-                                  Logger_Mode_T mode, size_t bytes);
+extern Logger_Handler_T Logger_Handler_newRotatingHandler(
+        Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path,
+        Logger_Mode_T mode, size_t bytes
+);
 
-extern Logger_Handler_T
-Logger_Handler_newBufferedHandler(Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path,
-                                  Logger_Mode_T mode, size_t bytes);
+extern Logger_Handler_T Logger_Handler_newBufferedHandler(
+        Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path,
+        Logger_Mode_T mode, size_t bytes
+);
 
 /**
  * Flushes the file associated to the handler.
@@ -529,9 +536,10 @@ extern void Logger_removeHandler(Logger_T self, Logger_Handler_T handler);
  * @param ... The fmt arguments.
  */
 /* TODO: Error handling */
-extern void
-_Logger_log(Logger_T self, Logger_Level_T level, Logger_String_T file, size_t line, Logger_String_T function,
-            time_t timestamp, const char *fmt, ...);
+extern void _Logger_log(
+        Logger_T self, Logger_Level_T level, Logger_String_T file, size_t line, Logger_String_T function,
+        time_t timestamp, const char *fmt, ...
+);
 
 #define Logger_log(self, level, fmt, ...)      _Logger_log(self, level, __FILE__, __LINE__, __func__, time(NULL), fmt, __VA_ARGS__)
 
