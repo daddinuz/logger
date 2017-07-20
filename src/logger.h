@@ -12,6 +12,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <stdarg.h>
 
 #define LOGGER_VERSION "0.1.0"
 
@@ -98,10 +99,9 @@ typedef struct Logger_Message_T *Logger_Message_T;
  *  - @param level must be a valid Logger_Level_T.
  *  - @param file must not be NULL.
  *  - @param function must not be NULL.
+ *  - @param fmt must not be NULL.
+ *  - @param args must not be NULL.
  *  - In case of OOM this function returns NULL and errno is set ENOMEM.
- *
- * Un-checked runtime errors:
- *  - @param ... first argument must be a const char *
  *
  * @param logger_name The name of the logger that has built this message.
  * @param level The log level for this message.
@@ -109,11 +109,38 @@ typedef struct Logger_Message_T *Logger_Message_T;
  * @param line The line in which this message has been logged.
  * @param function The function in which this message has been logged.
  * @param timestamp The timestamp in which this message has been logged.
- * @param ... Vararg printf-like formatting
+ * @param fmt A printf-like format string.
+ * @param args The arguments list for fmt.
  * @return A new instance of Logger_Message_T.
  */
-/* TODO: understand if this should be exposed */
-extern Logger_Message_T Logger_Message_new(Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line, Logger_String_T function, time_t timestamp, const char *fmt, ...);
+extern Logger_Message_T
+Logger_Message_make(Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
+                    Logger_String_T function, time_t timestamp, const char *fmt, va_list args);
+
+/**
+ * Allocates and initializes a new Logger_Message_T.
+ *
+ * Checked runtime errors:
+ *  - @param logger_name must not be NULL.
+ *  - @param level must be a valid Logger_Level_T.
+ *  - @param file must not be NULL.
+ *  - @param function must not be NULL.
+ *  - @param fmt must not be NULL.
+ *  - In case of OOM this function returns NULL and errno is set ENOMEM.
+ *
+ * @param logger_name The name of the logger that has built this message.
+ * @param level The log level for this message.
+ * @param file The file in which this message has been logged.
+ * @param line The line in which this message has been logged.
+ * @param function The function in which this message has been logged.
+ * @param timestamp The timestamp in which this message has been logged.
+ * @param fmt A printf-like format string.
+ * @param ... The arguments for fmt.
+ * @return A new instance of Logger_Message_T.
+ */
+extern Logger_Message_T
+Logger_Message_new(Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
+                   Logger_String_T function, time_t timestamp, const char *fmt, ...);
 
 /**
  * Returns the name of the logger that has built this message.
@@ -200,7 +227,6 @@ extern Logger_String_T Logger_Message_getMessage(Logger_Message_T self);
  *
  * @param self The reference to the Logger_Message_T instance.
  */
-/* TODO: understand if this should be exposed */
 extern void Logger_Message_delete(Logger_Message_T *self);
 
 /*
@@ -236,7 +262,8 @@ typedef void (*Logger_Formatter_deleteMessageCallback_T)(char **self);
  * @param deleteMessageCallback Destructor function that will be called by Logger_Formatter_deleteMessage.
  * @return A new instance of Logger_Formatter_T.
  */
-extern Logger_Formatter_T Logger_Formatter_new(Logger_Formatter_formatMessageCallback_T formatMessageCallback, Logger_Formatter_deleteMessageCallback_T deleteMessageCallback);
+extern Logger_Formatter_T Logger_Formatter_new(Logger_Formatter_formatMessageCallback_T formatMessageCallback,
+                                               Logger_Formatter_deleteMessageCallback_T deleteMessageCallback);
 
 /**
  * Returns the formatter callback.
@@ -315,11 +342,20 @@ typedef struct Logger_Handler_T *Logger_Handler_T;
  * @param stream The stream in which this handler will write.
  * @return A new instance of Logger_Handler_T.
  */
-extern Logger_Handler_T Logger_Handler_newStreamHandler(Logger_Formatter_T formatter, Logger_Level_T level, FILE *stream);
+extern Logger_Handler_T
+Logger_Handler_newStreamHandler(Logger_Formatter_T formatter, Logger_Level_T level, FILE *stream);
 
-extern Logger_Handler_T Logger_Handler_newFileHandler(Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path, Logger_Mode_T mode);
-extern Logger_Handler_T Logger_Handler_newRotatingHandler(Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path, Logger_Mode_T mode, size_t bytes);
-extern Logger_Handler_T Logger_Handler_newBufferedHandler(Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path, Logger_Mode_T mode, size_t bytes);
+extern Logger_Handler_T
+Logger_Handler_newFileHandler(Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path,
+                              Logger_Mode_T mode);
+
+extern Logger_Handler_T
+Logger_Handler_newRotatingHandler(Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path,
+                                  Logger_Mode_T mode, size_t bytes);
+
+extern Logger_Handler_T
+Logger_Handler_newBufferedHandler(Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path,
+                                  Logger_Mode_T mode, size_t bytes);
 
 /**
  * Flushes the file associated to the handler.
@@ -493,7 +529,9 @@ extern void Logger_removeHandler(Logger_T self, Logger_Handler_T handler);
  * @param ... The fmt arguments.
  */
 /* TODO: Error handling */
-extern void _Logger_log(Logger_T self, Logger_Level_T level, Logger_String_T file, size_t line, Logger_String_T function, time_t timestamp, const char *fmt, ...);
+extern void
+_Logger_log(Logger_T self, Logger_Level_T level, Logger_String_T file, size_t line, Logger_String_T function,
+            time_t timestamp, const char *fmt, ...);
 
 #define Logger_log(self, level, fmt, ...)      _Logger_log(self, level, __FILE__, __LINE__, __func__, time(NULL), fmt, __VA_ARGS__)
 

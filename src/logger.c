@@ -79,20 +79,21 @@ struct Logger_Message_T {
     sds message;
 };
 
-Logger_Message_T Logger_Message_new(Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line, Logger_String_T function, time_t timestamp, const char *fmt, ...) {
+Logger_Message_T
+Logger_Message_make(Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
+                    Logger_String_T function, time_t timestamp, const char *fmt, va_list args) {
     assert(logger_name);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
     assert(file);
     assert(function);
+    assert(fmt);
+    assert(args);
     Logger_Message_T self = malloc(sizeof(*self));
     if (!self) {
         errno = ENOMEM;
         return NULL;
     }
-    va_list args;
-    va_start(args, fmt);
     self->message = sdscatvprintf(sdsempty(), fmt, args);
-    va_end(args);
     if (!self->message) {
         free(self);
         errno = ENOMEM;
@@ -104,6 +105,25 @@ Logger_Message_T Logger_Message_new(Logger_String_T logger_name, Logger_Level_T 
     self->line = line;
     self->function = function;
     self->timestamp = timestamp;
+    return self;
+}
+
+Logger_Message_T
+Logger_Message_new(Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
+                   Logger_String_T function, time_t timestamp, const char *fmt, ...) {
+    assert(logger_name);
+    assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
+    assert(file);
+    assert(function);
+    assert(fmt);
+    va_list args;
+    va_start(args, fmt);
+    Logger_Message_T self = Logger_Message_make(logger_name, level, file, line, function, timestamp, fmt, args);
+    va_end(args);
+    if (!self) {
+        errno = ENOMEM;
+        return NULL;
+    }
     return self;
 }
 
@@ -158,7 +178,8 @@ struct Logger_Formatter_T {
     Logger_Formatter_deleteMessageCallback_T deleteMessageCallback;
 };
 
-Logger_Formatter_T Logger_Formatter_new(Logger_Formatter_formatMessageCallback_T formatMessageCallback, Logger_Formatter_deleteMessageCallback_T deleteMessageCallback) {
+Logger_Formatter_T Logger_Formatter_new(Logger_Formatter_formatMessageCallback_T formatMessageCallback,
+                                        Logger_Formatter_deleteMessageCallback_T deleteMessageCallback) {
     assert(formatMessageCallback);
     assert(deleteMessageCallback);
     Logger_Formatter_T self = malloc(sizeof(*self));
@@ -398,7 +419,9 @@ void Logger_removeHandler(Logger_T self, Logger_Handler_T handler) {
     }
 }
 
-void _Logger_log(Logger_T self, Logger_Level_T level, Logger_String_T file, size_t line, Logger_String_T function, time_t timestamp, const char *fmt, ...) {
+void
+_Logger_log(Logger_T self, Logger_Level_T level, Logger_String_T file, size_t line, Logger_String_T function,
+            time_t timestamp, const char *fmt, ...) {
     /* TODO: Error handling */
     assert(self);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
@@ -408,7 +431,7 @@ void _Logger_log(Logger_T self, Logger_Level_T level, Logger_String_T file, size
     if (level >= self->level) {
         va_list args;
         va_start(args, fmt);
-        Logger_Message_T message = Logger_Message_new(self->name, level, file, line, function, timestamp, fmt, args);
+        Logger_Message_T message = Logger_Message_make(self->name, level, file, line, function, timestamp, fmt, args);
         Logger_Buffer_T buffer = NULL;
         Logger_Handler_T handler = NULL;
         Logger_Handler_List_T base = NULL;
