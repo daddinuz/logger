@@ -57,14 +57,6 @@ extern Logger_Buffer_T Logger_Buffer_new(size_t size, char *content);
 extern void Logger_Buffer_delete(Logger_Buffer_T *self);
 
 /*
- * Modes
- */
-typedef enum Logger_Mode_T {
-    LOGGER_MODE_TRUNCATE = 0,
-    LOGGER_MODE_APPEND,
-} Logger_Mode_T;
-
-/*
  * Levels
  */
 typedef enum Logger_Level_T {
@@ -114,7 +106,7 @@ typedef struct Logger_Message_T *Logger_Message_T;
  * @param args The arguments list for fmt.
  * @return A new instance of Logger_Message_T.
  */
-extern Logger_Message_T Logger_Message_make(
+extern Logger_Message_T Logger_Message_newFromArgumentsPack(
         Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
         Logger_String_T function, time_t timestamp, const char *fmt, va_list args
 );
@@ -140,7 +132,7 @@ extern Logger_Message_T Logger_Message_make(
  * @param ... The arguments for fmt.
  * @return A new instance of Logger_Message_T.
  */
-extern Logger_Message_T Logger_Message_new(
+extern Logger_Message_T Logger_Message_newFromVariadicArguments(
         Logger_String_T logger_name, Logger_Level_T level, Logger_String_T file, size_t line,
         Logger_String_T function, time_t timestamp, const char *fmt, ...
 );
@@ -238,19 +230,23 @@ extern void Logger_Message_delete(Logger_Message_T *self);
 typedef struct Logger_Formatter_T *Logger_Formatter_T;
 
 /**
- * This function is used to format a message in the desired way.
+ * The functions with this signature are used to customize the way in which a message is formatted.
  * It must return an allocated string that will be freed by Logger_Formatter_deleteContentCallback_T.
  *
- * In case of OOM this function must return NULL and set errno to ENOMEM
+ * Note for implementation:
+ *  - Those functions must assert that message is not NULL (do not handle the case in which message is NULL).
+ *  - Those functions must return NULL and set errno to ENOMEM in case of OOM.
  */
 typedef char *(*Logger_Formatter_formatContentCallback_T)(Logger_Message_T message);
 
 /**
- * This function is used to free the memory allocated by Logger_Formatter_formatContentCallback_T.
+ * The functions with this signature are used to free the memory allocated by Logger_Formatter_formatContentCallback_T.
  *
- * Before return this function must set the reference of self to NULL.
+ * Note for implementation:
+ *  - Those functions must assert that content and the pointed value are not NULL.
+ *  - Those functions must set the reference of content to NULL before returning.
  */
-typedef void (*Logger_Formatter_deleteContentCallback_T)(char **self);
+typedef void (*Logger_Formatter_deleteContentCallback_T)(char **content);
 
 /**
  * Allocates and initializes a Logger_Formatter_T.
@@ -310,12 +306,12 @@ extern char *Logger_Formatter_formatMessage(Logger_Formatter_T self, Logger_Mess
  *
  * Checked runtime errors:
  *  - @param self must not be NULL.
- *  - @param message must be a valid reference to a Logger_Message_T instance.
+ *  - @param content must be a valid reference to a Logger_Message_T instance.
  *
  * @param self A Logger_Formatter_T instance.
- * @param message The reference of the message to be deleted.
+ * @param content The reference of the message to be deleted.
  */
-extern void Logger_Formatter_deleteMessage(Logger_Formatter_T self, char **message);
+extern void Logger_Formatter_deleteMessage(Logger_Formatter_T self, char **content);
 
 /**
  * Deletes a Logger_Formatter_T instance and frees its memory then sets self to NULL.
@@ -333,38 +329,47 @@ extern void Logger_Formatter_delete(Logger_Formatter_T *self);
 typedef struct Logger_Handler_T *Logger_Handler_T;
 
 /**
+ * The functions with this signature are used to customize the way in which the formatted message is logged.
+ *
+ * Note for implementation:
+ *  - Those functions must assert that handler is not NULL.
+ *  - Those functions must assert that file is not NULL.
+ *  - Those functions must assert that content is not NULL.
+ */
+typedef Logger_Buffer_T (*Logger_Handler_publishCallback_T)(
+        Logger_Handler_T handler, FILE *file, void *context, char *content
+);
+
+/**
+ * The functions with this signature are used to free the context related to the handler.
+ *
+ * Note for implementation:
+ *  - Those functions must assert that context and the pointed value are not NULL.
+ *  - Those functions must set the reference of context to NULL before returning.
+ */
+typedef void (*Logger_Handler_deleteContextCallback_T)(void **context);
+
+/**
  * Allocates and initializes a Logger_Handler_T.
  *
  * Checked runtime errors:
  *  - @param formatter must not be NULL.
  *  - @param level must be a valid Logger_Level_T.
- *  - @param stream must not be NULL.
+ *  - @param file must not be NULL.
+ *  - @param publishCallback must not be NULL.
  *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
  *
- * @param formatter The formatter for this handler.
+ * @param file The stream in which this handler will write.
  * @param level The level for this handler.
- * @param stream The stream in which this handler will write.
+ * @param formatter The formatter for this handler.
+ * @param publishCallback The callback to be applied for publishing the messages.
+ * @param context The callback used to allocate a new context.
+ * @param deleteContextCallback The callback used to free a context.
  * @return A new instance of Logger_Handler_T.
  */
-extern Logger_Handler_T
-Logger_Handler_newStreamHandler(Logger_Formatter_T formatter, Logger_Level_T level, FILE *stream);
-
-// TODO
-extern Logger_Handler_T Logger_Handler_newFileHandler(
-        Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path,
-        Logger_Mode_T mode
-);
-
-// TODO
-extern Logger_Handler_T Logger_Handler_newRotatingHandler(
-        Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path,
-        Logger_Mode_T mode, size_t bytes
-);
-
-// TODO
-extern Logger_Handler_T Logger_Handler_newBufferedHandler(
-        Logger_Formatter_T formatter, Logger_Level_T level, Logger_String_T file_path,
-        Logger_Mode_T mode, size_t bytes
+extern Logger_Handler_T Logger_Handler_new(
+        FILE *file, void *context, Logger_Level_T level, Logger_Formatter_T formatter,
+        Logger_Handler_publishCallback_T publishCallback, Logger_Handler_deleteContextCallback_T deleteContextCallback
 );
 
 /**
@@ -415,6 +420,27 @@ extern void Logger_Handler_setLevel(Logger_Handler_T self, Logger_Level_T level)
  * @return The Logger_Level_T for the current handler.
  */
 extern Logger_Level_T Logger_Handler_getLevel(Logger_Handler_T self);
+
+/**
+ * Sets the number of bytes that has been written by the handler.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *
+ * @param self A Logger_Handler_T instance.
+ */
+extern void Logger_Handler_setBytesWritten(Logger_Handler_T self, size_t bytes_written);
+
+/**
+ * Gets the number of bytes that has been written by the handler.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *
+ * @param self A Logger_Handler_T instance.
+ * @return The number of bytes written by the handlers.
+ */
+extern size_t Logger_Handler_getBytesWritten(Logger_Handler_T self);
 
 /**
  * Deletes a Logger_Handler_T instance and frees its memory then sets self to NULL.

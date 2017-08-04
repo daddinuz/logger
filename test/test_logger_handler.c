@@ -9,6 +9,7 @@
 #include <errno.h>
 #include "sds/sds.h"
 #include "logger.h"
+#include "logger_handlers.h"
 #include "Traits/Traits.h"
 
 static Logger_Message_T gMessage = NULL;
@@ -20,7 +21,7 @@ static void deleteMessageCallback(char **self);
 TRAITS(CanCreateANewLoggerStreamHandler) {
     sds expected_message = formatMessageCallback(gMessage);
 
-    Logger_Handler_T sut = Logger_Handler_newStreamHandler(gFormatter, LOGGER_LEVEL_DEBUG, stdout);
+    Logger_Handler_T sut = Logger_Handler_newStreamHandler(stdout, LOGGER_LEVEL_DEBUG, gFormatter);
     assert_not_null(sut);
 
     assert_equal(LOGGER_LEVEL_DEBUG, Logger_Handler_getLevel(sut));
@@ -92,7 +93,7 @@ void traits_setup(void) {
     time_t timestamp = time(NULL);
     Logger_String_T text = "Hello World!\n";
 
-    gMessage = Logger_Message_new(logger_name, level, file, line, function, timestamp, "%s", text);
+    gMessage = Logger_Message_newFromVariadicArguments(logger_name, level, file, line, function, timestamp, "%s", text);
     assert_not_null(gMessage);
 
     assert_string_equal(logger_name, Logger_Message_getLoggerName(gMessage));

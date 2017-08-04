@@ -9,6 +9,7 @@
 #include <errno.h>
 #include "sds/sds.h"
 #include "logger.h"
+#include "logger_handlers.h"
 #include "Traits/Traits.h"
 
 static Logger_Formatter_T gFormatter = NULL;
@@ -123,11 +124,11 @@ void traits_setup(void) {
     /*
      * Handler
      */
-    gStdoutHandler = Logger_Handler_newStreamHandler(gFormatter, LOGGER_LEVEL_DEBUG, stdout);
+    gStdoutHandler = Logger_Handler_newStreamHandler(stdout, LOGGER_LEVEL_DEBUG, gFormatter);
     assert_not_null(gStdoutHandler);
     assert_equal(LOGGER_LEVEL_DEBUG, Logger_Handler_getLevel(gStdoutHandler));
 
-    gStderrHandler = Logger_Handler_newStreamHandler(gFormatter, LOGGER_LEVEL_ERROR, stderr);
+    gStderrHandler = Logger_Handler_newStreamHandler(stderr, LOGGER_LEVEL_ERROR, gFormatter);
     assert_not_null(gStderrHandler);
     assert_equal(LOGGER_LEVEL_ERROR, Logger_Handler_getLevel(gStderrHandler));
 }

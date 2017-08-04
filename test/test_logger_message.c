@@ -20,7 +20,7 @@ TRAITS(CanCreateANewLoggerMessage) {
     time_t timestamp = time(NULL);
     Logger_String_T content = "Hello World!\n";
 
-    Logger_Message_T sut = Logger_Message_new(logger_name, level, file, line, function, timestamp, "%s", content);
+    Logger_Message_T sut = Logger_Message_newFromVariadicArguments(logger_name, level, file, line, function, timestamp, "%s", content);
     assert_not_null(sut);
 
     assert_string_equal(logger_name, Logger_Message_getLoggerName(sut));

@@ -82,7 +82,7 @@ void traits_setup(void) {
     time_t timestamp = time(NULL);
     Logger_String_T text = "Hello World!\n";
 
-    gMessage = Logger_Message_new(logger_name, level, file, line, function, timestamp, "%s", text);
+    gMessage = Logger_Message_newFromVariadicArguments(logger_name, level, file, line, function, timestamp, "%s", text);
     assert_not_null(gMessage);
 
     assert_string_equal(logger_name, Logger_Message_getLoggerName(gMessage));

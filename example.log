@@ -1,0 +1,6 @@
+Example Logger [WARNING] 2017-08-04 19:32:42 UTC /home/daddinuz/Workspace/C/logger/examples/example.c:33:main
+This should also appear to example.log
+Example Logger [ERROR] 2017-08-04 19:32:42 UTC /home/daddinuz/Workspace/C/logger/examples/example.c:34:main
+Same for this
+Example Logger [FATAL] 2017-08-04 19:32:42 UTC /home/daddinuz/Workspace/C/logger/examples/example.c:35:main
+And this
