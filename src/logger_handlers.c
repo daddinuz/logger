@@ -14,15 +14,12 @@
 #include "logger_handlers.h"
 
 /*
- * Logger Handlers Callbacks
+ * Stream Handler
  */
-static Logger_Buffer_T
-Logger_Handler_basicPublishCallback(Logger_Handler_T handler, FILE *file, void *context, char *content) {
-    (void) context;
+static Logger_Buffer_T Logger_Handler_streamHandlerPublishCallback(Logger_Handler_T handler, char *content) {
     assert(handler);
-    assert(file);
-    assert(!context);
     assert(content);
+    FILE *const file = Logger_Handler_getFile(handler);
     long bytes_written = fprintf(file, "%s", content);
     if (bytes_written < 0) {
         errno = EIO;
@@ -35,77 +32,72 @@ Logger_Handler_basicPublishCallback(Logger_Handler_T handler, FILE *file, void *
     return Logger_Buffer_new((size_t) bytes_written, content);
 }
 
-struct Logger_Handler_rotatingHandlerContext {
-    FILE *file;
-    Logger_String_T filePath;
-    size_t BYTES_BEFORE_ROTATION;
-    size_t rotationCounter;
-    size_t bytesWritten;
-};
-
-static void Logger_Handler_rotatingDeleteContextCallback(void **context) {
-    assert(context);
-    assert(*context);
-    struct Logger_Handler_rotatingHandlerContext *x = *context;
-    if (x->file) {
-        fclose(x->file);
-    }
-    free(*context);
-    *context = NULL;
-}
-
-static Logger_Buffer_T
-Logger_Handler_rotatingPublishCallback(Logger_Handler_T handler, FILE *file, void *context, char *content) {
-    assert(handler);
-    assert(file);
-    assert(context);
-    assert(content);
-    struct Logger_Handler_rotatingHandlerContext *x = context;
-    assert(x->file == file);
-    if (x->bytesWritten >= x->BYTES_BEFORE_ROTATION) {
-        x->rotationCounter++;
-        sds realFilePath = sdscatprintf(sdsempty(), "%s.%zu", x->filePath, x->rotationCounter);
-        if (!realFilePath) {
-            errno = ENOMEM;
-            return NULL;
-        }
-        x->file = freopen(realFilePath, "w", x->file);
-        sdsfree(realFilePath);
-        if (!x->file) {
-            return NULL;
-        }
-        x->bytesWritten = 0;
-    }
-    Logger_Buffer_T buffer = Logger_Handler_basicPublishCallback(handler, file, NULL, content);
-    if (!buffer) {
-        errno = ENOMEM;
-        return NULL;
-    }
-    x->bytesWritten += buffer->size;
-    return buffer;
-}
-
-/*
- * Logger Handlers
- */
-Logger_Handler_T Logger_Handler_newStreamHandler(
-        FILE *stream, Logger_Level_T level, Logger_Formatter_T formatter
-) {
+Logger_Handler_T Logger_Handler_newStreamHandler(FILE *stream, Logger_Level_T level, Logger_Formatter_T formatter) {
     assert(stream);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
     assert(formatter);
-    return Logger_Handler_new(stream, NULL, level, formatter, Logger_Handler_basicPublishCallback, NULL);
+    return Logger_Handler_new(stream, NULL, level, formatter, Logger_Handler_streamHandlerPublishCallback, NULL);
+}
+
+/*
+ * File Handler
+ */
+static void Logger_Handler_fileHandlerDeleteContextCallback(Logger_Handler_T handler, void *context) {
+    assert(handler);
+    fclose(Logger_Handler_getFile(handler));
+    free(context);
 }
 
 Logger_Handler_T Logger_Handler_newFileHandler(
         Logger_String_T filePath, Logger_Level_T level, Logger_Formatter_T formatter
 ) {
-    // TODO make context for this function (file)
     assert(filePath);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
     assert(formatter);
     FILE *file = fopen(filePath, "w");
-    return file ? Logger_Handler_new(file, NULL, level, formatter, Logger_Handler_basicPublishCallback, NULL) : NULL;
+    return file ?
+           Logger_Handler_new(
+                   file, NULL, level, formatter,
+                   Logger_Handler_streamHandlerPublishCallback, Logger_Handler_fileHandlerDeleteContextCallback
+           ) : NULL;
+}
+
+/*
+ * Rotating File Handler
+ */
+struct Logger_Handler_rotatingHandlerContext {
+    size_t BYTES_BEFORE_ROTATION;
+    size_t bytesWritten;
+    size_t rotationCounter;
+    Logger_String_T filePath;
+};
+
+static Logger_Buffer_T Logger_Handler_rotatingHandlerPublishCallback(Logger_Handler_T handler, char *content) {
+    assert(handler);
+    assert(content);
+    FILE *file = Logger_Handler_getFile(handler);
+    struct Logger_Handler_rotatingHandlerContext *context = Logger_Handler_getContext(handler);
+    if (context->bytesWritten >= context->BYTES_BEFORE_ROTATION) {
+        context->rotationCounter++;
+        sds realFilePath = sdscatprintf(sdsempty(), "%s.%zu", context->filePath, context->rotationCounter);
+        if (!realFilePath) {
+            errno = ENOMEM;
+            return NULL;
+        }
+        file = freopen(realFilePath, "w", file);
+        sdsfree(realFilePath);
+        if (!file) {
+            return NULL;
+        }
+        context->bytesWritten = 0;
+    }
+    Logger_Buffer_T buffer = Logger_Handler_streamHandlerPublishCallback(handler, content);
+    if (!buffer) {
+        errno = ENOMEM;
+        return NULL;
+    }
+    context->bytesWritten += buffer->size;
+    return buffer;
 }
 
 Logger_Handler_T Logger_Handler_newRotatingHandler(
@@ -130,13 +122,12 @@ Logger_Handler_T Logger_Handler_newRotatingHandler(
         errno = ENOMEM;
         return NULL;
     }
-    context->file = file;
     context->filePath = filePath;
     context->bytesWritten = 0;
     context->rotationCounter = rotationCounter;
     context->BYTES_BEFORE_ROTATION = bytesBeforeRotation;
     return Logger_Handler_new(
             file, context, level, formatter,
-            Logger_Handler_rotatingPublishCallback, Logger_Handler_rotatingDeleteContextCallback
+            Logger_Handler_rotatingHandlerPublishCallback, Logger_Handler_fileHandlerDeleteContextCallback
     );
 }

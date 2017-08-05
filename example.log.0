@@ -1,4 +1,0 @@
-Example Logger [INFO] 2017-08-04 19:32:42 UTC /home/daddinuz/Workspace/C/logger/examples/example.c:32:main
-This should also appear only stdout
-Example Logger [WARNING] 2017-08-04 19:32:42 UTC /home/daddinuz/Workspace/C/logger/examples/example.c:33:main
-This should also appear to example.log

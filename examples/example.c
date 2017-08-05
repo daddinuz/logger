@@ -29,7 +29,7 @@ int main() {
 
     Logger_logDebug(gLogger, "%s\n", "This should not appear");
     Logger_logNotice(gLogger, "%s\n", "This should appear only on stdout");
-    Logger_logInfo(gLogger, "%s\n", "This should also appear only stdout");
+    Logger_logInfo(gLogger, "%s\n", "This should appear on stdout and on example.log.0");
     Logger_logWarning(gLogger, "%s\n", "This should also appear to example.log");
     Logger_logError(gLogger, "%s\n", "Same for this");
     Logger_logFatal(gLogger, "%s\n", "And this");

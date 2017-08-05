@@ -333,21 +333,17 @@ typedef struct Logger_Handler_T *Logger_Handler_T;
  *
  * Note for implementation:
  *  - Those functions must assert that handler is not NULL.
- *  - Those functions must assert that file is not NULL.
  *  - Those functions must assert that content is not NULL.
  */
-typedef Logger_Buffer_T (*Logger_Handler_publishCallback_T)(
-        Logger_Handler_T handler, FILE *file, void *context, char *content
-);
+typedef Logger_Buffer_T (*Logger_Handler_publishCallback_T)(Logger_Handler_T handler, char *content);
 
 /**
  * The functions with this signature are used to free the context related to the handler.
  *
  * Note for implementation:
- *  - Those functions must assert that context and the pointed value are not NULL.
- *  - Those functions must set the reference of context to NULL before returning.
+ *  - Those functions must assert that handler is not NULL.
  */
-typedef void (*Logger_Handler_deleteContextCallback_T)(void **context);
+typedef void (*Logger_Handler_deleteContextCallback_T)(Logger_Handler_T handler, void *context);
 
 /**
  * Allocates and initializes a Logger_Handler_T.
@@ -441,6 +437,28 @@ extern void Logger_Handler_setBytesWritten(Logger_Handler_T self, size_t bytes_w
  * @return The number of bytes written by the handlers.
  */
 extern size_t Logger_Handler_getBytesWritten(Logger_Handler_T self);
+
+/**
+ * Gets the file associated to the handler.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *
+ * @param self A Logger_Handler_T instance.
+ * @return The file associated to the handler
+ */
+extern FILE *Logger_Handler_getFile(Logger_Handler_T self);
+
+/**
+ * Gets the context associated to the handler.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *
+ * @param self A Logger_Handler_T instance.
+ * @return The context associated to the handler
+ */
+extern void *Logger_Handler_getContext(Logger_Handler_T self);
 
 /**
  * Deletes a Logger_Handler_T instance and frees its memory then sets self to NULL.

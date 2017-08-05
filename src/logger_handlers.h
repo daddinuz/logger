@@ -72,7 +72,15 @@ extern Logger_Handler_T Logger_Handler_newRotatingHandler(
         Logger_String_T filePath, Logger_Level_T level, Logger_Formatter_T formatter, size_t bytesBeforeRotation
 );
 
-// TODO
+/**
+ * Todo
+ *
+ * @param filePath
+ * @param level
+ * @param formatter
+ * @param bytes
+ * @return
+ */
 extern Logger_Handler_T Logger_Handler_newBufferHandler(
         Logger_String_T filePath, Logger_Level_T level, Logger_Formatter_T formatter, size_t bytes
 );

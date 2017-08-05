@@ -174,8 +174,9 @@ Logger_String_T Logger_Message_getContent(Logger_Message_T self) {
 void Logger_Message_delete(Logger_Message_T *self) {
     assert(self);
     assert(*self);
-    sdsfree((*self)->content);
-    free(*self);
+    Logger_Message_T x = *self;
+    sdsfree(x->content);
+    free(x);
     *self = NULL;
 }
 
@@ -283,7 +284,7 @@ Logger_Buffer_T Logger_Handler_publish(Logger_Handler_T self, Logger_Message_T m
         errno = ENOMEM;
         return NULL;
     }
-    return self->publishCallback(self, self->file, self->context, content);
+    return self->publishCallback(self, content);
 }
 
 void Logger_Handler_setLevel(Logger_Handler_T self, Logger_Level_T level) {
@@ -307,13 +308,24 @@ size_t Logger_Handler_getBytesWritten(Logger_Handler_T self) {
     return self->bytesWritten;
 }
 
+FILE *Logger_Handler_getFile(Logger_Handler_T self) {
+    assert(self);
+    return self->file;
+}
+
+void *Logger_Handler_getContext(Logger_Handler_T self) {
+    assert(self);
+    return self->context;
+}
+
 void Logger_Handler_delete(Logger_Handler_T *self) {
     assert(self);
     assert(*self);
-    if ((*self)->context && (*self)->deleteContextCallback) {
-        (*self)->deleteContextCallback(&(*self)->context);
+    Logger_Handler_T x = *self;
+    if (x->deleteContextCallback) {
+        x->deleteContextCallback(x, x->context);
     }
-    free(*self);
+    free(x);
     *self = NULL;
 }
 
@@ -461,12 +473,13 @@ void _Logger_log(
 void Logger_delete(Logger_T *self) {
     assert(self);
     assert(*self);
-    sdsfree((*self)->name);
+    Logger_T x = *self;
+    sdsfree(x->name);
     Logger_Handler_List_T current, next;
-    for (current = (*self)->handlers; current; current = next) {
+    for (current = x->handlers; current; current = next) {
         next = current->next;
         Logger_Handler_List_delete(&current);
     }
-    free(*self);
+    free(x);
     *self = NULL;
 }
