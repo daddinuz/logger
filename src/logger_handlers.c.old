@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <errno.h>
 #include "sds/sds.h"
-#include "logger_handlers.h"
+#include "logger_handlers.h.old"
 
 /*
  * Stream Handler

@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <assert.h>
 #include "sds/sds.h"
-#include "logger_formatters.h"
+#include "logger_formatters.h.old"
 
 /*
  * Logger Formatters Callbacks
