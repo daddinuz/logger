@@ -14,7 +14,7 @@
  */
 static Logger_T gLogger = NULL;
 static Logger_Formatter_T gFormatter = NULL;
-static Logger_Handler_T gStdoutHandler = NULL, gStderrHandler = NULL, gFileHandler = NULL, gRotatingHandler = NULL;
+static Logger_Handler_T gStdoutHandler = NULL, gStderrHandler = NULL, gFileHandler = NULL, gRotatingFileHandler = NULL;
 static void initializeLogging(void);
 static void terminateLogging(void);
 
@@ -51,7 +51,7 @@ void initializeLogging(void) {
     gStdoutHandler = Logger_Handler_newConsoleHandler(LOGGER_CONSOLE_STREAM_STDOUT, LOGGER_LEVEL_DEBUG, gFormatter);
     gStderrHandler = Logger_Handler_newConsoleHandler(LOGGER_CONSOLE_STREAM_STDERR, LOGGER_LEVEL_ERROR, gFormatter);
     gFileHandler = Logger_Handler_newFileHandler(filePath, LOGGER_LEVEL_WARNING, gFormatter);
-    gRotatingHandler = Logger_Handler_newRotatingHandler(filePath, LOGGER_LEVEL_INFO, gFormatter, 256);
+    gRotatingFileHandler = Logger_Handler_newRotatingFileHandler(filePath, LOGGER_LEVEL_INFO, gFormatter, 256);
 
     /*
      * Setup logger
@@ -60,7 +60,7 @@ void initializeLogging(void) {
     Logger_addHandler(gLogger, gStdoutHandler);
     Logger_addHandler(gLogger, gStderrHandler);
     Logger_addHandler(gLogger, gFileHandler);
-    Logger_addHandler(gLogger, gRotatingHandler);
+    Logger_addHandler(gLogger, gRotatingFileHandler);
 }
 
 void terminateLogging(void) {
@@ -75,7 +75,7 @@ void terminateLogging(void) {
     Logger_Handler_delete(&gStderrHandler);
     Logger_Handler_delete(&gStdoutHandler);
     Logger_Handler_delete(&gFileHandler);
-    Logger_Handler_delete(&gRotatingHandler);
+    Logger_Handler_delete(&gRotatingFileHandler);
 
     /*
      * Terminate formatter

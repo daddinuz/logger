@@ -159,10 +159,8 @@ static void rotatingFileHandlerPublishCallback(Logger_Handler_T handler, Logger_
         const int bytesWritten = fprintf(context->file, "%s", log);
         if (bytesWritten <= 0) {
             // TODO: handle IO Errors
-            break;
         } else {
             context->bytesWritten += bytesWritten;
-            break;
         }
     } while (false);
 
@@ -182,7 +180,7 @@ static void rotatingFileHandlerCloseCallback(Logger_Handler_T handler) {
     fclose(context->file);
 }
 
-Logger_Handler_T Logger_Handler_newRotatingHandler(
+Logger_Handler_T Logger_Handler_newRotatingFileHandler(
         const char *filePath, Logger_Level_T level, Logger_Formatter_T formatter, size_t bytesBeforeRotation
 ) {
     assert(filePath);

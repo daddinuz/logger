@@ -73,7 +73,7 @@ extern Logger_Handler_T Logger_Handler_newFileHandler(
  * @param bytesBeforeRotation The number of bytes to be written before rotating.
  * @return A new instance of Logger_Handler_T.
  */
-extern Logger_Handler_T Logger_Handler_newRotatingHandler(
+extern Logger_Handler_T Logger_Handler_newRotatingFileHandler(
         const char *filePath, Logger_Level_T level, Logger_Formatter_T formatter, size_t bytesBeforeRotation
 );
 
