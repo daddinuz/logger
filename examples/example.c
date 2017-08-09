@@ -8,8 +8,6 @@
 
 #include <stdlib.h>
 #include "logger.h"
-#include "logger_builtin_handlers.h"
-#include "logger_builtin_formatters.h"
 
 /*
  *

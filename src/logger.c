@@ -7,7 +7,6 @@
  */
 
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
@@ -127,29 +126,16 @@ void Logger_addHandler(Logger_T self, Logger_Handler_T handler) {
     self->handlers = head;
 }
 
-// TODO
-void _Logger_log(
-        Logger_T self, Logger_Level_T level, time_t timestamp, size_t line,
-        const char *file, const char *function, const char *fmt, ...
-) {
+// TODO: understand how to propagate errors
+void Logger_log(Logger_T self, Logger_Level_T level, Logger_Record_T record) {
     assert(self);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
-    assert(file);
-    assert(function);
-    assert(fmt);
+    assert(record);
     if (level >= Logger_getLevel(self)) {
-        va_list args;
-        va_start(args, fmt);
-        Logger_Handler_T handler = NULL;
-        Logger_HandlersList_T base = NULL;
-        Logger_Record_T record = Logger_Record_new(NULL, self->name, function, file, line, timestamp, level);
-        for (base = self->handlers; base; base = base->next) {
-            handler = base->handler;
-            if (Logger_Handler_isLoggable(handler, record)) {
-                Logger_Handler_publish(handler, record);
+        for (Logger_HandlersList_T base = self->handlers; base; base = base->next) {
+            if (Logger_Handler_isLoggable(base->handler, record)) {
+                Logger_Handler_publish(base->handler, record);
             }
         }
-        Logger_Record_delete(&record);
-        va_end(args);
     }
 }

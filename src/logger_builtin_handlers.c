@@ -6,7 +6,6 @@
  * Date:   August 04, 2017
  */
 
-#include <errno.h>
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -59,7 +58,6 @@ Logger_Handler_T Logger_Handler_newConsoleHandler(
     assert(formatter);
     Logger_Handler_T self = Logger_Handler_new(consoleHandlerPublishCallback, consoleHandlerFlushCallback, consoleHandlerCloseCallback);
     if (!self) {
-        errno = ENOMEM;
         return NULL;
     }
     Logger_Handler_setContext(self, LOGGER_CONSOLE_STREAM_STDOUT == stream ? stdout : stderr);
@@ -138,7 +136,7 @@ static void rotatingFileHandlerPublishCallback(Logger_Handler_T handler, Logger_
     rotatingHandlerContext context = Logger_Handler_getContext(handler);
     Logger_Formatter_T formatter = Logger_Handler_getFormatter(handler);
 
-    for (;;) {
+    do {
         log = Logger_Formatter_formatRecord(formatter, record);
         if (!log) {
             break;
@@ -161,10 +159,12 @@ static void rotatingFileHandlerPublishCallback(Logger_Handler_T handler, Logger_
         const int bytesWritten = fprintf(context->file, "%s", log);
         if (bytesWritten <= 0) {
             // TODO: handle IO Errors
+            break;
         } else {
             context->bytesWritten += bytesWritten;
+            break;
         }
-    };
+    } while (false);
 
     Logger_Formatter_deleteFormattedRecord(formatter, log);
     sdsfree(realFilePath);
@@ -208,6 +208,7 @@ Logger_Handler_T Logger_Handler_newRotatingHandler(
         if (!context) {
             break;
         }
+        context->file = file;
         context->filePath = filePath;
         context->bytesWritten = 0;
         context->rotationCounter = ROTATION_COUNTER;

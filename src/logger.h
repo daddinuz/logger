@@ -9,9 +9,13 @@
 #ifndef LOGGER_LOGGER_INCLUDED
 #define LOGGER_LOGGER_INCLUDED
 
+#include "logger_level.h"
+#include "logger_string.h"
 #include "logger_record.h"
-#include "logger_formatter.h"
 #include "logger_handler.h"
+#include "logger_formatter.h"
+#include "logger_builtin_handlers.h"
+#include "logger_builtin_formatters.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -117,20 +121,25 @@ extern void Logger_setLevel(Logger_T self, Logger_Level_T level);
  */
 extern void Logger_addHandler(Logger_T self, Logger_Handler_T handler);
 
-// TODO
-extern void _Logger_log(
-        Logger_T self, Logger_Level_T level, time_t timestamp, size_t line,
-        const char *file, const char *function, const char *fmt, ...
-);
+// TODO: understand how to propagate errors
+extern void Logger_log(Logger_T self, Logger_Level_T level, Logger_Record_T record);
 
-#define Logger_log(self, level, fmt, ...)      _Logger_log(self, level, time(NULL), __LINE__, __FILE__, __func__, fmt, __VA_ARGS__)
+// TODO: error handling
+#define _Logger_build(self, level, fmt, ...)                                                                                      \
+    do {                                                                                                                            \
+        Logger_String_T message = Logger_String_from(fmt, __VA_ARGS__);                                                             \
+        Logger_Record_T record = Logger_Record_new(message, Logger_getName(self), __func__, __FILE__, __LINE__, time(NULL), level); \
+        Logger_log(self, level, record);                                                                                            \
+        Logger_Record_delete(&record);                                                                                              \
+        Logger_String_delete(&message);                                                                                             \
+    } while (false)
 
-#define Logger_logDebug(self, fmt, ...)        Logger_log(self, LOGGER_LEVEL_DEBUG, fmt, __VA_ARGS__)
-#define Logger_logNotice(self, fmt, ...)       Logger_log(self, LOGGER_LEVEL_NOTICE, fmt, __VA_ARGS__)
-#define Logger_logInfo(self, fmt, ...)         Logger_log(self, LOGGER_LEVEL_INFO, fmt, __VA_ARGS__)
-#define Logger_logWarning(self, fmt, ...)      Logger_log(self, LOGGER_LEVEL_WARNING, fmt, __VA_ARGS__)
-#define Logger_logError(self, fmt, ...)        Logger_log(self, LOGGER_LEVEL_ERROR, fmt, __VA_ARGS__)
-#define Logger_logFatal(self, fmt, ...)        Logger_log(self, LOGGER_LEVEL_FATAL, fmt, __VA_ARGS__)
+#define Logger_logDebug(self, fmt, ...)     _Logger_build(self, LOGGER_LEVEL_DEBUG, fmt, __VA_ARGS__)
+#define Logger_logNotice(self, fmt, ...)    _Logger_build(self, LOGGER_LEVEL_NOTICE, fmt, __VA_ARGS__)
+#define Logger_logInfo(self, fmt, ...)      _Logger_build(self, LOGGER_LEVEL_INFO, fmt, __VA_ARGS__)
+#define Logger_logWarning(self, fmt, ...)   _Logger_build(self, LOGGER_LEVEL_WARNING, fmt, __VA_ARGS__)
+#define Logger_logError(self, fmt, ...)     _Logger_build(self, LOGGER_LEVEL_ERROR, fmt, __VA_ARGS__)
+#define Logger_logFatal(self, fmt, ...)     _Logger_build(self, LOGGER_LEVEL_FATAL, fmt, __VA_ARGS__)
 
 #ifdef __cplusplus
 }
