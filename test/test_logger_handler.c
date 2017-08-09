@@ -76,8 +76,12 @@ TRAITS(CanCreateALoggerHandler) {
         sdsfree(expected_context);
     }
 
+    assert_equal(1, gFlushCalls);
+    assert_equal(1, gCloseCalls);
     Logger_Handler_delete(&sut);
     assert_null(sut);
+    assert_equal(2, gFlushCalls);
+    assert_equal(2, gCloseCalls);
 }
 
 /*

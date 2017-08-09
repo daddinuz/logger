@@ -6,23 +6,27 @@
  * Date:   August 04, 2017 
  */
 
-#ifndef LOGGER_LOGGER_HANDLERS_INCLUDED
-#define LOGGER_LOGGER_HANDLERS_INCLUDED
+#ifndef LOGGER_LOGGER_BUILTIN_HANDLERS_INCLUDED
+#define LOGGER_LOGGER_BUILTIN_HANDLERS_INCLUDED
 
-#include "logger.h"
+#include "logger_handler.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+typedef enum Logger_ConsoleStream_T {
+    LOGGER_CONSOLE_STREAM_STDERR,
+    LOGGER_CONSOLE_STREAM_STDOUT,
+} Logger_ConsoleStream_T;
+
 /**
- * Allocates and initializes a Logger_Handler_T.
+ * Construct a Logger_Handler_T.
  *
  * Checked runtime errors:
- *  - @param stream must not be NULL.
- *  - @param level must be a valid Logger_Level_T.
+ *  - @param stream must be one of LOGGER_CONSOLE_STREAM_STDERR or LOGGER_CONSOLE_STREAM_STDOUT.
+ *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
  *  - @param formatter must not be NULL.
- *  - In case of file handling errors this function will return NULL, errno will be set to any value returned by `fopen`
  *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
  *
  * @param stream The stream in which this handler will write.
@@ -30,17 +34,18 @@ extern "C" {
  * @param formatter The formatter for this handler.
  * @return A new instance of Logger_Handler_T.
  */
-extern Logger_Handler_T Logger_Handler_newStreamHandler(
-        FILE *stream, Logger_Level_T level, Logger_Formatter_T formatter
+extern Logger_Handler_T Logger_Handler_newConsoleHandler(
+        Logger_ConsoleStream_T stream, Logger_Level_T level, Logger_Formatter_T formatter
 );
 
 /**
- * Allocates and initializes a Logger_Handler_T.
+ * Construct a Logger_Handler_T.
  *
  * Checked runtime errors:
  *  - @param filePath must not be NULL.
- *  - @param level must be a valid Logger_Level_T.
+ *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
  *  - @param formatter must not be NULL.
+ *  - In case of IO errors this function will return NULL and errno will be set to a proper value.
  *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
  *
  * @param filePath The path to the file in which the handler will write.
@@ -49,17 +54,17 @@ extern Logger_Handler_T Logger_Handler_newStreamHandler(
  * @return A new instance of Logger_Handler_T.
  */
 extern Logger_Handler_T Logger_Handler_newFileHandler(
-        Logger_String_T filePath, Logger_Level_T level, Logger_Formatter_T formatter
+        const char *filePath, Logger_Level_T level, Logger_Formatter_T formatter
 );
 
 /**
- * Allocates and initializes a Logger_Handler_T.
+ * Construct a Logger_Handler_T.
  *
  * Checked runtime errors:
  *  - @param filePath must not be NULL.
- *  - @param level must be a valid Logger_Level_T.
+ *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
  *  - @param formatter must not be NULL.
- *  - In case of file handling errors this function will return NULL, errno will be set to any value returned by `fopen`
+ *  - In case of IO errors this function will return NULL and errno will be set to a proper value.
  *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
  *
  * @param filePath The path to the file in which the handler will write.
@@ -69,11 +74,11 @@ extern Logger_Handler_T Logger_Handler_newFileHandler(
  * @return A new instance of Logger_Handler_T.
  */
 extern Logger_Handler_T Logger_Handler_newRotatingHandler(
-        Logger_String_T filePath, Logger_Level_T level, Logger_Formatter_T formatter, size_t bytesBeforeRotation
+        const char *filePath, Logger_Level_T level, Logger_Formatter_T formatter, size_t bytesBeforeRotation
 );
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* LOGGER_LOGGER_HANDLERS_INCLUDED */
+#endif /* LOGGER_LOGGER_BUILTIN_HANDLERS_INCLUDED */
