@@ -117,7 +117,7 @@ extern void Logger_setLevel(Logger_T self, Logger_Level_T level);
  */
 extern void Logger_addHandler(Logger_T self, Logger_Handler_T handler);
 
-/* TODO: Error handling */
+// TODO
 extern void _Logger_log(
         Logger_T self, Logger_Level_T level, time_t timestamp, size_t line,
         const char *file, const char *function, const char *fmt, ...

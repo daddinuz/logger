@@ -8,7 +8,7 @@
 
 #include <stdlib.h>
 #include "logger.h"
-#include "logger_handlers.h.old"
+#include "logger_builtin_handlers.h"
 #include "logger_builtin_formatters.h"
 
 /*
@@ -50,8 +50,8 @@ void initializeLogging(void) {
     /*
      * Setup handlers
      */
-    gStdoutHandler = Logger_Handler_newStreamHandler(stdout, LOGGER_LEVEL_DEBUG, gFormatter);
-    gStderrHandler = Logger_Handler_newStreamHandler(stderr, LOGGER_LEVEL_ERROR, gFormatter);
+    gStdoutHandler = Logger_Handler_newConsoleHandler(LOGGER_CONSOLE_STREAM_STDOUT, LOGGER_LEVEL_DEBUG, gFormatter);
+    gStderrHandler = Logger_Handler_newConsoleHandler(LOGGER_CONSOLE_STREAM_STDERR, LOGGER_LEVEL_ERROR, gFormatter);
     gFileHandler = Logger_Handler_newFileHandler(filePath, LOGGER_LEVEL_WARNING, gFormatter);
     gRotatingHandler = Logger_Handler_newRotatingHandler(filePath, LOGGER_LEVEL_INFO, gFormatter, 256);
 

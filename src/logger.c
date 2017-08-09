@@ -13,14 +13,14 @@
 #include <errno.h>
 #include "logger.h"
 
-typedef struct Logger_Handler_List_T {
+typedef struct Logger_HandlersList_T {
     Logger_Handler_T handler;
-    struct Logger_Handler_List_T *next;
-} *Logger_Handler_List_T;
+    struct Logger_HandlersList_T *next;
+} *Logger_HandlersList_T;
 
-static Logger_Handler_List_T Logger_Handler_List_new(Logger_Handler_T handler, Logger_Handler_List_T next) {
+static Logger_HandlersList_T Logger_HandlersList_new(Logger_Handler_T handler, Logger_HandlersList_T next) {
     assert(handler);
-    Logger_Handler_List_T self = malloc(sizeof(*self));
+    Logger_HandlersList_T self = malloc(sizeof(*self));
     if (!self) {
         errno = ENOMEM;
         return NULL;
@@ -30,10 +30,10 @@ static Logger_Handler_List_T Logger_Handler_List_new(Logger_Handler_T handler, L
     return self;
 }
 
-static void Logger_Handler_List_delete(Logger_Handler_List_T *ref) {
+static void Logger_HandlersList_delete(Logger_HandlersList_T *ref) {
     assert(ref);
     assert(*ref);
-    Logger_Handler_List_T self = *ref;
+    Logger_HandlersList_T self = *ref;
     free(self);
     *ref = NULL;
 }
@@ -41,7 +41,7 @@ static void Logger_Handler_List_delete(Logger_Handler_List_T *ref) {
 struct Logger_T {
     const char *name;
     Logger_Level_T level;
-    Logger_Handler_List_T handlers;
+    Logger_HandlersList_T handlers;
 };
 
 Logger_T Logger_new(const char *name, Logger_Level_T level) {
@@ -62,10 +62,10 @@ void Logger_delete(Logger_T *ref) {
     assert(ref);
     assert(*ref);
     Logger_T self = *ref;
-    Logger_Handler_List_T current, next;
+    Logger_HandlersList_T current, next;
     for (current = self->handlers; current; current = next) {
         next = current->next;
-        Logger_Handler_List_delete(&current);
+        Logger_HandlersList_delete(&current);
     }
     free(self);
     *ref = NULL;
@@ -85,7 +85,7 @@ Logger_Handler_T Logger_removeHandler(Logger_T self, Logger_Handler_T handler) {
     assert(self);
     assert(handler);
     Logger_Handler_T outHandler = NULL;
-    Logger_Handler_List_T prev = NULL, base = self->handlers;
+    Logger_HandlersList_T prev = NULL, base = self->handlers;
     while (base) {
         if (base->handler == handler) {
             if (prev) {
@@ -94,7 +94,7 @@ Logger_Handler_T Logger_removeHandler(Logger_T self, Logger_Handler_T handler) {
                 self->handlers = base->next;
             }
             outHandler = base->handler;
-            Logger_Handler_List_delete(&base);
+            Logger_HandlersList_delete(&base);
             break;
         }
         prev = base;
@@ -119,7 +119,7 @@ void Logger_setLevel(Logger_T self, Logger_Level_T level) {
 void Logger_addHandler(Logger_T self, Logger_Handler_T handler) {
     assert(self);
     assert(handler);
-    Logger_Handler_List_T head = Logger_Handler_List_new(handler, self->handlers);
+    Logger_HandlersList_T head = Logger_HandlersList_new(handler, self->handlers);
     if (!head) {
         errno = ENOMEM;
         return;
@@ -127,6 +127,7 @@ void Logger_addHandler(Logger_T self, Logger_Handler_T handler) {
     self->handlers = head;
 }
 
+// TODO
 void _Logger_log(
         Logger_T self, Logger_Level_T level, time_t timestamp, size_t line,
         const char *file, const char *function, const char *fmt, ...
@@ -140,8 +141,7 @@ void _Logger_log(
         va_list args;
         va_start(args, fmt);
         Logger_Handler_T handler = NULL;
-        Logger_Handler_List_T base = NULL;
-        // TODO make message
+        Logger_HandlersList_T base = NULL;
         Logger_Record_T record = Logger_Record_new(NULL, self->name, function, file, line, timestamp, level);
         for (base = self->handlers; base; base = base->next) {
             handler = base->handler;
