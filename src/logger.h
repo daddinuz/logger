@@ -125,7 +125,7 @@ extern void Logger_addHandler(Logger_T self, Logger_Handler_T handler);
 extern void Logger_log(Logger_T self, Logger_Level_T level, Logger_Record_T record);
 
 // TODO: error handling
-#define _Logger_build(self, level, fmt, ...)                                                                                      \
+#define _Logger_build(self, level, fmt, ...)                                                                                        \
     do {                                                                                                                            \
         Logger_String_T message = Logger_String_from(fmt, __VA_ARGS__);                                                             \
         Logger_Record_T record = Logger_Record_new(message, Logger_getName(self), __func__, __FILE__, __LINE__, time(NULL), level); \

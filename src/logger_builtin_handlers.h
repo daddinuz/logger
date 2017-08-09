@@ -77,6 +77,26 @@ extern Logger_Handler_T Logger_Handler_newRotatingFileHandler(
         const char *filePath, Logger_Level_T level, Logger_Formatter_T formatter, size_t bytesBeforeRotation
 );
 
+/**
+ * Construct a Logger_Handler_T.
+ *
+ * Checked runtime errors:
+ *  - @param filePath must not be NULL.
+ *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
+ *  - @param formatter must not be NULL.
+ *  - In case of IO errors this function will return NULL and errno will be set to a proper value.
+ *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *
+ * @param filePath The path to the file in which the handler will write.
+ * @param level The level for this handler.
+ * @param formatter The formatter for this handler.
+ * @param bytesBeforeWrite The number of bytes before performing a write.
+ * @return A new instance of Logger_Handler_T.
+ */
+extern Logger_Handler_T Logger_Handler_newMemoryFileHandler(
+        const char *filePath, Logger_Level_T level, Logger_Formatter_T formatter, size_t bytesBeforeWrite
+);
+
 #ifdef __cplusplus
 }
 #endif

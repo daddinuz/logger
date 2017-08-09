@@ -21,7 +21,7 @@ static char *formatRecordCallback(Logger_Record_T record) {
     strftime(time_string, sizeof(time_string) / sizeof(time_string[0]), "%Y-%m-%d %H:%M:%S UTC", gmtime(&timestamp));
     sds result = sdscatprintf(
             sdsempty(),
-            "%s [%s] %s %s:%zu:%s\n%s",
+            "%s [%s] %s %s:%zu:%s\n%s\n",
             Logger_Record_getLoggerName(record),
             Logger_Level_getName(Logger_Record_getLevel(record)),
             time_string,

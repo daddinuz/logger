@@ -14,7 +14,7 @@
  */
 static Logger_T gLogger = NULL;
 static Logger_Formatter_T gFormatter = NULL;
-static Logger_Handler_T gStdoutHandler = NULL, gStderrHandler = NULL, gFileHandler = NULL, gRotatingFileHandler = NULL;
+static Logger_Handler_T gStdoutHandler = NULL, gStderrHandler = NULL, gFileHandler = NULL, gRotatingFileHandler = NULL, gMemoryFileHandler = NULL;
 static void initializeLogging(void);
 static void terminateLogging(void);
 
@@ -25,12 +25,12 @@ int main() {
     atexit(terminateLogging);
     initializeLogging();
 
-    Logger_logDebug(gLogger, "%s\n", "This should not appear");
-    Logger_logNotice(gLogger, "%s\n", "This should appear only on stdout");
-    Logger_logInfo(gLogger, "%s\n", "This should appear on stdout and on example.log.0");
-    Logger_logWarning(gLogger, "%s\n", "This should also appear to example.log");
-    Logger_logError(gLogger, "%s\n", "Same for this");
-    Logger_logFatal(gLogger, "%s\n", "And this");
+    Logger_logDebug(gLogger, "%s", "This should not appear");
+    Logger_logNotice(gLogger, "%s", "This should appear on stdout and memory_file_handler.log");
+    Logger_logInfo(gLogger, "%s", "This should also appear to rotating_file_handler.log.0");
+    Logger_logWarning(gLogger, "%s", "This should also appear to file_handler.log");
+    Logger_logError(gLogger, "%s", "Same for this");
+    Logger_logFatal(gLogger, "%s", "And this");
 
     return EXIT_SUCCESS;
 }
@@ -39,7 +39,6 @@ int main() {
  *
  */
 void initializeLogging(void) {
-    const char *filePath = "example.log";
     /*
      * Setup formatter
      */
@@ -50,8 +49,9 @@ void initializeLogging(void) {
      */
     gStdoutHandler = Logger_Handler_newConsoleHandler(LOGGER_CONSOLE_STREAM_STDOUT, LOGGER_LEVEL_DEBUG, gFormatter);
     gStderrHandler = Logger_Handler_newConsoleHandler(LOGGER_CONSOLE_STREAM_STDERR, LOGGER_LEVEL_ERROR, gFormatter);
-    gFileHandler = Logger_Handler_newFileHandler(filePath, LOGGER_LEVEL_WARNING, gFormatter);
-    gRotatingFileHandler = Logger_Handler_newRotatingFileHandler(filePath, LOGGER_LEVEL_INFO, gFormatter, 256);
+    gFileHandler = Logger_Handler_newFileHandler("file_handler.log", LOGGER_LEVEL_WARNING, gFormatter);
+    gRotatingFileHandler = Logger_Handler_newRotatingFileHandler("rotating_file_handler.log", LOGGER_LEVEL_INFO, gFormatter, 256);
+    gMemoryFileHandler = Logger_Handler_newMemoryFileHandler("memory_file_handler.log", LOGGER_LEVEL_DEBUG, gFormatter, 512);
 
     /*
      * Setup logger
@@ -61,6 +61,7 @@ void initializeLogging(void) {
     Logger_addHandler(gLogger, gStderrHandler);
     Logger_addHandler(gLogger, gFileHandler);
     Logger_addHandler(gLogger, gRotatingFileHandler);
+    Logger_addHandler(gLogger, gMemoryFileHandler);
 }
 
 void terminateLogging(void) {
@@ -76,6 +77,7 @@ void terminateLogging(void) {
     Logger_Handler_delete(&gStdoutHandler);
     Logger_Handler_delete(&gFileHandler);
     Logger_Handler_delete(&gRotatingFileHandler);
+    Logger_Handler_delete(&gMemoryFileHandler);
 
     /*
      * Terminate formatter
