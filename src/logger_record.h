@@ -13,6 +13,7 @@
 #include <stddef.h>
 #include <stdarg.h>
 #include "logger_level.h"
+#include "logger_string.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,7 +47,7 @@ typedef struct Logger_Record_T *Logger_Record_T;
  * @return A new Logger_Record_T instance.
  */
 extern Logger_Record_T Logger_Record_new(
-        char *message, const char *loggerName, const char *function, const char *file,
+        Logger_String_T message, const char *loggerName, const char *function, const char *file,
         size_t line, time_t timestamp, Logger_Level_T level
 );
 
@@ -69,7 +70,7 @@ extern void Logger_Record_delete(Logger_Record_T *ref);
  * @param self The Logger_Record_T instance.
  * @return The message associated to the Logger_Record_T instance.
  */
-extern char *Logger_Record_getMessage(Logger_Record_T self);
+extern Logger_String_T Logger_Record_getMessage(Logger_Record_T self);
 
 /**
  * Get the source logger's name.
@@ -147,7 +148,7 @@ extern Logger_Level_T Logger_Record_getLevel(Logger_Record_T self);
  * @param self The Logger_Record_T instance.
  * @param message The raw message to be set.
  */
-extern void Logger_Record_setMessage(Logger_Record_T self, char *message);
+extern void Logger_Record_setMessage(Logger_Record_T self, Logger_String_T message);
 
 /**
  * Set the logger name that issued the request.

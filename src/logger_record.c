@@ -12,7 +12,7 @@
 #include "logger_record.h"
 
 struct Logger_Record_T {
-    char *message;
+    Logger_String_T message;
     const char *loggerName;
     const char *function;
     const char *file;
@@ -22,7 +22,7 @@ struct Logger_Record_T {
 };
 
 Logger_Record_T Logger_Record_new(
-        char *message, const char *loggerName, const char *function, const char *file,
+        Logger_String_T message, const char *loggerName, const char *function, const char *file,
         size_t line, time_t timestamp, Logger_Level_T level
 ) {
     assert(message);
@@ -53,7 +53,7 @@ void Logger_Record_delete(Logger_Record_T *ref) {
     *ref = NULL;
 }
 
-char *Logger_Record_getMessage(Logger_Record_T self) {
+Logger_String_T Logger_Record_getMessage(Logger_Record_T self) {
     assert(self);
     return self->message;
 }
@@ -88,7 +88,7 @@ Logger_Level_T Logger_Record_getLevel(Logger_Record_T self) {
     return self->level;
 }
 
-void Logger_Record_setMessage(Logger_Record_T self, char *message) {
+void Logger_Record_setMessage(Logger_Record_T self, Logger_String_T message) {
     assert(self);
     assert(message);
     self->message = message;

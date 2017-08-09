@@ -6,8 +6,8 @@
  * Date:   August 08, 2017 
  */
 
-#include <string.h>
 #include "Traits/Traits.h"
+#include "logger_string.h"
 #include "logger_record.h"
 
 /*
@@ -15,7 +15,10 @@
  */
 TRAITS(CanCreateALoggerRecord) {
     // Setup resources
-    char *EXPECTED_MESSAGE[] = {strdup("EXPECTED_MESSAGE"), strdup("NEW_EXPECTED_MESSAGE")};
+    Logger_String_T EXPECTED_MESSAGE[] = {
+            Logger_String_new("EXPECTED_MESSAGE"),
+            Logger_String_new("NEW_EXPECTED_MESSAGE")
+    };
     const char *EXPECTED_LOGGER_NAME[] = {"EXPECTED_LOGGER_NAME", "NEW_EXPECTED_LOGGER_NAME"};
     const char *EXPECTED_FUNCTION[] = {"EXPECTED_FUNCTION", "NEW_EXPECTED_FUNCTION"};
     const char *EXPECTED_FILE[] = {"EXPECTED_FILE", "NEW_EXPECTED_FILE"};
@@ -65,8 +68,8 @@ TRAITS(CanCreateALoggerRecord) {
     assert_null(sut);
 
     // Cleanup resources
-    free(EXPECTED_MESSAGE[0]);
-    free(EXPECTED_MESSAGE[1]);
+    Logger_String_delete(&EXPECTED_MESSAGE[0]);
+    Logger_String_delete(&EXPECTED_MESSAGE[1]);
 }
 
 /*
