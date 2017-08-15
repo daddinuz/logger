@@ -70,17 +70,28 @@ extern const char *Logger_getName(Logger_T self);
 extern Logger_Level_T Logger_getLevel(Logger_T self);
 
 /**
- * Remove the handler from the logger.
+ * Remove a specific handler from the logger.
  *
  * Checked runtime errors:
- *  - @param self must not be NULL;
- *  - @param handler must not be NULL;
+ *  - @param self must not be NULL.
+ *  - @param handler must not be NULL.
  *
  * @param self The Logger_T instance.
  * @param handler The handler to be removed.
  * @return The removed handler or NULL.
  */
 extern Logger_Handler_T Logger_removeHandler(Logger_T self, Logger_Handler_T handler);
+
+/**
+ * Remove the last inserted handler from the logger.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *
+ * @param self The Logger_T instance.
+ * @return The last handler or NULL if no handler left.
+ */
+extern Logger_Handler_T Logger_popHandler(Logger_T self);
 
 /**
  * Set the name for the specific logger.

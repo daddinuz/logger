@@ -102,6 +102,18 @@ Logger_Handler_T Logger_removeHandler(Logger_T self, Logger_Handler_T handler) {
     return outHandler;
 }
 
+Logger_Handler_T Logger_popHandler(Logger_T self) {
+    assert(self);
+    Logger_Handler_T outHandler = NULL;
+    Logger_HandlersList_T tmp = NULL;
+    if (self->handlers) {
+        tmp = self->handlers;
+        outHandler = self->handlers->handler;
+        self->handlers = self->handlers->next;
+        Logger_HandlersList_delete(&tmp);
+    }
+    return outHandler;
+}
 
 void Logger_setName(Logger_T self, const char *name) {
     assert(self);
