@@ -182,6 +182,7 @@ static void rotatingFileHandlerCloseCallback(Logger_Handler_T handler) {
     assert(handler);
     rotatingFileHandlerContext context = Logger_Handler_getContext(handler);
     fclose(context->file);
+    free(context);
 }
 
 Logger_Handler_T Logger_Handler_newRotatingFileHandler(
@@ -280,6 +281,7 @@ static void memoryFileHandlerCloseCallback(Logger_Handler_T handler) {
     assert(handler);
     memoryFileHandlerContext context = Logger_Handler_getContext(handler);
     fclose(context->file);
+    free(context);
 }
 
 // TODO: use a custom buffer
@@ -289,17 +291,11 @@ Logger_Handler_T Logger_Handler_newMemoryFileHandler(
     assert(filePath);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
     assert(formatter);
-    sds buffer = NULL;
     FILE *file = NULL;
     memoryFileHandlerContext context = NULL;
     Logger_Handler_T self = NULL;
 
     for (;;) {
-        buffer = sdsMakeRoomFor(sdsempty(), bytesBeforeWrite);
-        assert(0 == sdslen(buffer));
-        if (!buffer) {
-            break;
-        }
         file = fopen(filePath, "w");
         if (!file) {
             break;
@@ -322,7 +318,6 @@ Logger_Handler_T Logger_Handler_newMemoryFileHandler(
     }
 
     // TODO: handle OOM Errors
-    sdsfree(buffer);
     if (file) {
         fclose(file);
     }

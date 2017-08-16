@@ -3,10 +3,12 @@
  *
  * Author: daddinuz
  * email:  daddinuz@gmail.com
- * Date:   August 08, 2017 
+ * Date:   August 08, 2017
  */
 
 #include "Traits/Traits.h"
+#include "logger_builtin_formatters.h"
+#include "logger_builtin_handlers.h"
 #include "logger.h"
 
 Logger_Formatter_T gFormatter = NULL;

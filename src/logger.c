@@ -70,6 +70,18 @@ void Logger_delete(Logger_T *ref) {
     *ref = NULL;
 }
 
+void Logger_deepDelete(Logger_T *ref) {
+    assert(ref);
+    assert(*ref);
+    Logger_T self = *ref;
+    for (Logger_Handler_T handler = Logger_popHandler(self); handler; handler = Logger_popHandler(self)) {
+        Logger_Formatter_T formatter = Logger_Handler_getFormatter(handler);
+        Logger_Formatter_delete(&formatter);
+        Logger_Handler_delete(&handler);
+    };
+    Logger_delete(ref);
+}
+
 const char *Logger_getName(Logger_T self) {
     assert(self);
     return self->name;

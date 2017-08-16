@@ -41,5 +41,9 @@ endforeach (source_file ${TEST_SOURCES})
 #####
 # Examples
 ###
-add_executable(example examples/example.c)
-target_link_libraries(example PRIVATE ${PROJECT_NAME})
+file(GLOB EXAMPLE_SOURCES ${PROJECT_SOURCE_DIR}/examples/example_*.c)
+foreach (source_file ${EXAMPLE_SOURCES})
+    get_filename_component(target ${source_file} NAME_WE)
+    add_executable(${target} ${source_file})
+    target_link_libraries(${target} PRIVATE ${PROJECT_NAME})
+endforeach (source_file ${EXAMPLE_SOURCES})

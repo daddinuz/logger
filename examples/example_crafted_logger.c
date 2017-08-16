@@ -7,6 +7,8 @@
  */
 
 #include <stdlib.h>
+#include "logger_builtin_formatters.h"
+#include "logger_builtin_handlers.h"
 #include "logger.h"
 
 /*
@@ -14,7 +16,12 @@
  */
 static Logger_T gLogger = NULL;
 static Logger_Formatter_T gFormatter = NULL;
-static Logger_Handler_T gStdoutHandler = NULL, gStderrHandler = NULL, gFileHandler = NULL, gRotatingFileHandler = NULL, gMemoryFileHandler = NULL;
+static Logger_Handler_T gStdoutHandler = NULL;
+static Logger_Handler_T gStderrHandler = NULL;
+static Logger_Handler_T gFileHandler = NULL;
+static Logger_Handler_T gRotatingFileHandler = NULL;
+static Logger_Handler_T gMemoryFileHandler = NULL;
+
 static void initializeLogging(void);
 static void terminateLogging(void);
 
@@ -73,8 +80,8 @@ void terminateLogging(void) {
     /*
      * Terminate handlers
      */
-    Logger_Handler_delete(&gStderrHandler);
     Logger_Handler_delete(&gStdoutHandler);
+    Logger_Handler_delete(&gStderrHandler);
     Logger_Handler_delete(&gFileHandler);
     Logger_Handler_delete(&gRotatingFileHandler);
     Logger_Handler_delete(&gMemoryFileHandler);

@@ -14,8 +14,6 @@
 #include "logger_record.h"
 #include "logger_handler.h"
 #include "logger_formatter.h"
-#include "logger_builtin_handlers.h"
-#include "logger_builtin_formatters.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,6 +44,16 @@ extern Logger_T Logger_new(const char *name, Logger_Level_T level);
  * @param ref The reference to the Logger_T instance.
  */
 extern void Logger_delete(Logger_T *ref);
+
+/**
+ * Destruct a Logger_T and recursively the handler associated and the relative formatters.
+ *
+ * Checked runtime errors:
+ *  - @param ref must be a valid reference to a Logger_T instance.
+ *
+ * @param ref The reference to the Logger_T instance.
+ */
+extern void Logger_deepDelete(Logger_T *ref);
 
 /**
  * Get the name of the specific logger.
