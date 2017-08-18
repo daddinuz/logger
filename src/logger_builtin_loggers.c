@@ -48,3 +48,41 @@ Logger_T Logger_newConsoleLogger(const char *name, Logger_Level_T level, Logger_
     }
     return NULL;
 }
+
+Logger_T Logger_newFileLogger(const char *name, Logger_Level_T level, const char *filePath) {
+    assert(name);
+    assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
+    assert(filePath);
+
+    Logger_Formatter_T formatter = NULL;
+    Logger_Handler_T handler = NULL;
+    Logger_T self = NULL;
+
+    for (;;) {
+        formatter = Logger_Formatter_newSimpleFormatter();
+        if (!formatter) {
+            break;
+        }
+
+        handler = Logger_Handler_newFileHandler(filePath, level, formatter);
+        if (!handler) {
+            break;
+        }
+
+        self = Logger_new(name, level);
+        if (!self) {
+            break;
+        }
+
+        Logger_addHandler(self, handler);
+        return self;
+    }
+
+    if (formatter) {
+        Logger_Formatter_delete(&formatter);
+    }
+    if (handler) {
+        Logger_Handler_delete(&handler);
+    }
+    return NULL;
+}
