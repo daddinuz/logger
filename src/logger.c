@@ -150,12 +150,17 @@ void Logger_addHandler(Logger_T self, Logger_Handler_T handler) {
     self->handlers = head;
 }
 
-// TODO: understand how to propagate errors
-void Logger_log(Logger_T self, Logger_Level_T level, Logger_Record_T record) {
+bool Logger_isLoggable(Logger_T self, Logger_Level_T level) {
     assert(self);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
+    return level >= self->level;
+}
+
+// TODO: understand how to propagate errors
+void Logger_log(Logger_T self, Logger_Record_T record) {
+    assert(self);
     assert(record);
-    if (level >= Logger_getLevel(self)) {
+    if (Logger_isLoggable(self, Logger_Record_getLevel(record))) {
         for (Logger_HandlersList_T base = self->handlers; base; base = base->next) {
             if (Logger_Handler_isLoggable(base->handler, record)) {
                 Logger_Handler_publish(base->handler, record);

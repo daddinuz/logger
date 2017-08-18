@@ -57,23 +57,27 @@ TRAITS(CanCreateALoggerHandler) {
     Logger_Handler_close(sut);
     assert_equal(1, gCloseCalls);
 
-    assert_equal(LOGGER_LEVEL_DEBUG, Logger_Handler_getLevel(sut));
     assert_equal(NULL, Logger_Handler_getFormatter(sut));
     assert_equal(NULL, Logger_Handler_getContext(sut));
 
-    for (Logger_Level_T hLevel = LOGGER_LEVEL_DEBUG, rLevel = Logger_Record_getLevel(gRecord);
-         hLevel < LOGGER_LEVEL_FATAL; hLevel++) {
-        Logger_Handler_setLevel(sut, hLevel);
-        assert_equal(hLevel, Logger_Handler_getLevel(sut));
-        assert_equal(hLevel <= rLevel, Logger_Handler_isLoggable(sut, gRecord));
+    for (Logger_Level_T EXPECTED_LEVEL = LOGGER_LEVEL_DEBUG; EXPECTED_LEVEL <= LOGGER_LEVEL_FATAL; EXPECTED_LEVEL++) {
+        Logger_Handler_setLevel(sut, EXPECTED_LEVEL);
+        assert_equal(EXPECTED_LEVEL, Logger_Handler_getLevel(sut));
+        for (Logger_Level_T probeLevel = LOGGER_LEVEL_DEBUG; probeLevel <= LOGGER_LEVEL_FATAL; probeLevel++) {
+            Logger_Record_setLevel(gRecord, probeLevel);
+            assert_equal(probeLevel, Logger_Record_getLevel(gRecord));
+            assert_equal(probeLevel >= EXPECTED_LEVEL, Logger_Handler_isLoggable(sut, gRecord));
+        }
     }
+    
     Logger_Handler_setFormatter(sut, gFormatter);
     assert_equal(gFormatter, Logger_Handler_getFormatter(sut));
+
     {
-        void *const expected_context = sdsempty();
-        Logger_Handler_setContext(sut, expected_context);
-        assert_equal(expected_context, Logger_Handler_getContext(sut));
-        sdsfree(expected_context);
+        void *const EXPECTED_CONTEXT = sdsempty();
+        Logger_Handler_setContext(sut, EXPECTED_CONTEXT);
+        assert_equal(EXPECTED_CONTEXT, Logger_Handler_getContext(sut));
+        sdsfree(EXPECTED_CONTEXT);
     }
 
     assert_equal(1, gFlushCalls);
@@ -102,7 +106,7 @@ void traits_setup(void) {
     sut = NULL;
     gRecord = Logger_Record_new(
             Logger_String_new("EXPECTED_MESSAGE"), "EXPECTED_LOGGER_NAME", "EXPECTED_FUNCTION", "EXPECTED_FILE",
-            0, 0, LOGGER_LEVEL_INFO
+            0, 0, LOGGER_LEVEL_DEBUG
     );
     assert_not_null(gRecord);
     assert_not_null(Logger_Record_getMessage(gRecord));

@@ -26,15 +26,17 @@ TRAITS(CanCreateALogger) {
     assert_not_null(sut);
 
     assert_string_equal(EXPECTED_NAME, Logger_getName(sut));
-    assert_equal(EXPECTED_LEVEL, Logger_getLevel(sut));
-
     EXPECTED_NAME = "NEW_EXPECTED_NAME";
     Logger_setName(sut, EXPECTED_NAME);
     assert_string_equal(EXPECTED_NAME, Logger_getName(sut));
 
-    EXPECTED_LEVEL = LOGGER_LEVEL_FATAL;
-    Logger_setLevel(sut, EXPECTED_LEVEL);
-    assert_equal(EXPECTED_LEVEL, Logger_getLevel(sut));
+    for (EXPECTED_LEVEL = LOGGER_LEVEL_DEBUG; EXPECTED_LEVEL <= LOGGER_LEVEL_FATAL; EXPECTED_LEVEL++) {
+        Logger_setLevel(sut, EXPECTED_LEVEL);
+        assert_equal(EXPECTED_LEVEL, Logger_getLevel(sut));
+        for (Logger_Level_T probeLevel = LOGGER_LEVEL_DEBUG; probeLevel <= LOGGER_LEVEL_FATAL; probeLevel++) {
+            assert_equal(probeLevel >= EXPECTED_LEVEL, Logger_isLoggable(sut, probeLevel));
+        }
+    }
 
     Logger_delete(&sut);
     assert_null(sut);

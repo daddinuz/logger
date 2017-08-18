@@ -140,25 +140,48 @@ extern void Logger_setLevel(Logger_T self, Logger_Level_T level);
  */
 extern void Logger_addHandler(Logger_T self, Logger_Handler_T handler);
 
+/**
+ * Check if a record with the given level would actually be logged by this logger.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
+ *
+ * @param self The Logger_T instance.
+ * @return true if the given record would actually be logged by this logger.
+ */
+extern bool Logger_isLoggable(Logger_T self, Logger_Level_T level);
+
+/**
+ * Log a Logger_Record_T.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *  - @param record must not be NULL.
+ *
+ * @param self The Logger_T instance.
+ * @param record The Logger_Record_T instance to be logged.
+ */
 // TODO: understand how to propagate errors
-extern void Logger_log(Logger_T self, Logger_Level_T level, Logger_Record_T record);
+extern void Logger_log(Logger_T self, Logger_Record_T record);
 
 // TODO: error handling
-#define _Logger_build(self, level, fmt, ...)                                                                                        \
-    do {                                                                                                                            \
-        Logger_String_T message = Logger_String_from(fmt, __VA_ARGS__);                                                             \
-        Logger_Record_T record = Logger_Record_new(message, Logger_getName(self), __func__, __FILE__, __LINE__, time(NULL), level); \
-        Logger_log(self, level, record);                                                                                            \
-        Logger_Record_delete(&record);                                                                                              \
-        Logger_String_delete(&message);                                                                                             \
+#define _Logger_build(__self__, __level__, __fmt__, ...)                                                                                \
+    do {                                                                                                                                \
+        Logger_T self = __self__;                                                                                                       \
+        Logger_String_T message = Logger_String_from(__fmt__, __VA_ARGS__);                                                             \
+        Logger_Record_T record = Logger_Record_new(message, Logger_getName(self), __func__, __FILE__, __LINE__, time(NULL), __level__); \
+        Logger_log(self, record);                                                                                                       \
+        Logger_Record_delete(&record);                                                                                                  \
+        Logger_String_delete(&message);                                                                                                 \
     } while (false)
 
-#define Logger_logDebug(self, fmt, ...)     _Logger_build(self, LOGGER_LEVEL_DEBUG, fmt, __VA_ARGS__)
-#define Logger_logNotice(self, fmt, ...)    _Logger_build(self, LOGGER_LEVEL_NOTICE, fmt, __VA_ARGS__)
-#define Logger_logInfo(self, fmt, ...)      _Logger_build(self, LOGGER_LEVEL_INFO, fmt, __VA_ARGS__)
-#define Logger_logWarning(self, fmt, ...)   _Logger_build(self, LOGGER_LEVEL_WARNING, fmt, __VA_ARGS__)
-#define Logger_logError(self, fmt, ...)     _Logger_build(self, LOGGER_LEVEL_ERROR, fmt, __VA_ARGS__)
-#define Logger_logFatal(self, fmt, ...)     _Logger_build(self, LOGGER_LEVEL_FATAL, fmt, __VA_ARGS__)
+#define Logger_logDebug(__self__, __fmt__, ...)     _Logger_build(__self__, LOGGER_LEVEL_DEBUG, __fmt__, __VA_ARGS__)
+#define Logger_logNotice(__self__, __fmt__, ...)    _Logger_build(__self__, LOGGER_LEVEL_NOTICE, __fmt__, __VA_ARGS__)
+#define Logger_logInfo(__self__, __fmt__, ...)      _Logger_build(__self__, LOGGER_LEVEL_INFO, __fmt__, __VA_ARGS__)
+#define Logger_logWarning(__self__, __fmt__, ...)   _Logger_build(__self__, LOGGER_LEVEL_WARNING, __fmt__, __VA_ARGS__)
+#define Logger_logError(__self__, __fmt__, ...)     _Logger_build(__self__, LOGGER_LEVEL_ERROR, __fmt__, __VA_ARGS__)
+#define Logger_logFatal(__self__, __fmt__, ...)     _Logger_build(__self__, LOGGER_LEVEL_FATAL, __fmt__, __VA_ARGS__)
 
 #ifdef __cplusplus
 }
