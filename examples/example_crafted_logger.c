@@ -54,11 +54,11 @@ void initializeLogging(void) {
     /*
      * Setup handlers
      */
-    gStdoutHandler = Logger_Handler_newConsoleHandler(LOGGER_CONSOLE_STREAM_STDOUT, LOGGER_LEVEL_DEBUG, gFormatter);
-    gStderrHandler = Logger_Handler_newConsoleHandler(LOGGER_CONSOLE_STREAM_STDERR, LOGGER_LEVEL_ERROR, gFormatter);
-    gFileHandler = Logger_Handler_newFileHandler("file_handler.log", LOGGER_LEVEL_WARNING, gFormatter);
-    gRotatingFileHandler = Logger_Handler_newRotatingFileHandler("rotating_file_handler.log", LOGGER_LEVEL_INFO, gFormatter, 256);
-    gMemoryFileHandler = Logger_Handler_newMemoryFileHandler("memory_file_handler.log", LOGGER_LEVEL_DEBUG, gFormatter, 512);
+    gStdoutHandler = Logger_Handler_newConsoleHandler(LOGGER_LEVEL_DEBUG, gFormatter, LOGGER_CONSOLE_STREAM_STDOUT);
+    gStderrHandler = Logger_Handler_newConsoleHandler(LOGGER_LEVEL_ERROR, gFormatter, LOGGER_CONSOLE_STREAM_STDERR);
+    gFileHandler = Logger_Handler_newFileHandler(LOGGER_LEVEL_WARNING, gFormatter, "file_handler.log");
+    gRotatingFileHandler = Logger_Handler_newRotatingFileHandler(LOGGER_LEVEL_INFO, gFormatter, "rotating_file_handler.log", 256);
+    gMemoryFileHandler = Logger_Handler_newMemoryFileHandler(LOGGER_LEVEL_DEBUG, gFormatter, "memory_file_handler.log", 512);
 
     /*
      * Setup logger

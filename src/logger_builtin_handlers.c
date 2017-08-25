@@ -51,7 +51,7 @@ static void consoleHandlerCloseCallback(Logger_Handler_T handler) {
 }
 
 Logger_Handler_T Logger_Handler_newConsoleHandler(
-        Logger_ConsoleStream_T stream, Logger_Level_T level, Logger_Formatter_T formatter
+        Logger_Level_T level, Logger_Formatter_T formatter, Logger_ConsoleStream_T stream
 ) {
     assert(LOGGER_CONSOLE_STREAM_STDERR == stream || LOGGER_CONSOLE_STREAM_STDOUT == stream);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
@@ -98,7 +98,7 @@ static void fileHandlerCloseCallback(Logger_Handler_T handler) {
 }
 
 Logger_Handler_T Logger_Handler_newFileHandler(
-        const char *filePath, Logger_Level_T level, Logger_Formatter_T formatter
+        Logger_Level_T level, Logger_Formatter_T formatter, const char *filePath
 ) {
     assert(filePath);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
@@ -186,7 +186,7 @@ static void rotatingFileHandlerCloseCallback(Logger_Handler_T handler) {
 }
 
 Logger_Handler_T Logger_Handler_newRotatingFileHandler(
-        const char *filePath, Logger_Level_T level, Logger_Formatter_T formatter, size_t bytesBeforeRotation
+        Logger_Level_T level, Logger_Formatter_T formatter, const char *filePath, size_t bytesBeforeRotation
 ) {
     assert(filePath);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
@@ -286,7 +286,7 @@ static void memoryFileHandlerCloseCallback(Logger_Handler_T handler) {
 
 // TODO: use a custom buffer
 Logger_Handler_T Logger_Handler_newMemoryFileHandler(
-        const char *filePath, Logger_Level_T level, Logger_Formatter_T formatter, size_t bytesBeforeWrite
+        Logger_Level_T level, Logger_Formatter_T formatter, const char *filePath, size_t bytesBeforeWrite
 ) {
     assert(filePath);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);

@@ -35,7 +35,7 @@ typedef enum Logger_ConsoleStream_T {
  * @return A new instance of Logger_Handler_T.
  */
 extern Logger_Handler_T Logger_Handler_newConsoleHandler(
-        Logger_ConsoleStream_T stream, Logger_Level_T level, Logger_Formatter_T formatter
+        Logger_Level_T level, Logger_Formatter_T formatter, Logger_ConsoleStream_T stream
 );
 
 /**
@@ -54,7 +54,7 @@ extern Logger_Handler_T Logger_Handler_newConsoleHandler(
  * @return A new instance of Logger_Handler_T.
  */
 extern Logger_Handler_T Logger_Handler_newFileHandler(
-        const char *filePath, Logger_Level_T level, Logger_Formatter_T formatter
+        Logger_Level_T level, Logger_Formatter_T formatter, const char *filePath
 );
 
 /**
@@ -74,7 +74,7 @@ extern Logger_Handler_T Logger_Handler_newFileHandler(
  * @return A new instance of Logger_Handler_T.
  */
 extern Logger_Handler_T Logger_Handler_newRotatingFileHandler(
-        const char *filePath, Logger_Level_T level, Logger_Formatter_T formatter, size_t bytesBeforeRotation
+        Logger_Level_T level, Logger_Formatter_T formatter, const char *filePath, size_t bytesBeforeRotation
 );
 
 /**
@@ -94,7 +94,7 @@ extern Logger_Handler_T Logger_Handler_newRotatingFileHandler(
  * @return A new instance of Logger_Handler_T.
  */
 extern Logger_Handler_T Logger_Handler_newMemoryFileHandler(
-        const char *filePath, Logger_Level_T level, Logger_Formatter_T formatter, size_t bytesBeforeWrite
+        Logger_Level_T level, Logger_Formatter_T formatter, const char *filePath, size_t bytesBeforeWrite
 );
 
 #ifdef __cplusplus

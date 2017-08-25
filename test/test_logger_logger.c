@@ -99,10 +99,10 @@ void traits_setup(void) {
     gFormatter = Logger_Formatter_newSimpleFormatter();
     assert_not_null(gFormatter);
 
-    gHandler1 = Logger_Handler_newConsoleHandler(LOGGER_CONSOLE_STREAM_STDOUT, LOGGER_LEVEL_DEBUG, gFormatter);
+    gHandler1 = Logger_Handler_newConsoleHandler(LOGGER_LEVEL_DEBUG, gFormatter, LOGGER_CONSOLE_STREAM_STDOUT);
     assert_not_null(gHandler1);
 
-    gHandler2 = Logger_Handler_newConsoleHandler(LOGGER_CONSOLE_STREAM_STDERR, LOGGER_LEVEL_ERROR, gFormatter);
+    gHandler2 = Logger_Handler_newConsoleHandler(LOGGER_LEVEL_ERROR, gFormatter, LOGGER_CONSOLE_STREAM_STDERR);
     assert_not_null(gHandler2);
 }
 
