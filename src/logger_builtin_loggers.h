@@ -16,23 +16,37 @@ extern "C" {
 #endif
 
 /**
- * Construct a Logger_T with a console handler using simple formatter.
+ * Construct a Logger_T using ConsoleHandler as handler and SimpleFormatter as formatter.
+ * The stream used for ConsoleHandler will be set to stdout.
  *
  * Checked runtime errors:
  *  - @param name must not be NULL.
  *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
- *  - @param stream must be one of LOGGER_CONSOLE_STREAM_STDERR or LOGGER_CONSOLE_STREAM_STDOUT.
  *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
  *
  * @param name The logger name.
  * @param level The logger and handler level.
- * @param stream The stream in which this handler will write.
  * @return A new Logger_T instance.
  */
-extern Logger_T Logger_newConsoleLogger(const char *name, Logger_Level_T level, Logger_ConsoleStream_T stream);
+extern Logger_T Logger_newStdoutLogger(const char *name, Logger_Level_T level);
 
 /**
- * Construct a Logger_T with a file handler using simple formatter.
+ * Construct a Logger_T using ConsoleHandler as handler and SimpleFormatter as formatter.
+ * The stream used for ConsoleHandler will be set to stderr.
+ *
+ * Checked runtime errors:
+ *  - @param name must not be NULL.
+ *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
+ *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *
+ * @param name The logger name.
+ * @param level The logger and handler level.
+ * @return A new Logger_T instance.
+ */
+extern Logger_T Logger_newStderrLogger(const char *name, Logger_Level_T level);
+
+/**
+ * Construct a Logger_T using FileHandler as handler and SimpleFormatter as formatter.
  *
  * Checked runtime errors:
  *  - @param name must not be NULL.
@@ -48,11 +62,43 @@ extern Logger_T Logger_newConsoleLogger(const char *name, Logger_Level_T level, 
  */
 extern Logger_T Logger_newFileLogger(const char *name, Logger_Level_T level, const char *filePath);
 
-// TODO
-extern Logger_T Logger_newRotatingFileLogger(const char *name, Logger_Level_T level);
+/**
+ * Construct a Logger_T using RotatingFileHandler as handler and SimpleFormatter as formatter.
+ *
+ * Checked runtime errors:
+ *  - @param name must not be NULL.
+ *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
+ *  - @param filePath must not be NULL.
+ *  - In case of IO errors this function will return NULL and errno will be set to a proper value.
+ *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *
+ * @param name The logger name.
+ * @param level The logger and handler level.
+ * @param filePath The path to the file in which the handler will write.
+ * @param bytesBeforeRotation The number of bytes to be written before rotating.
+ * @return A new Logger_T instance.
+ */
+extern Logger_T
+Logger_newRotatingFileLogger(const char *name, Logger_Level_T level, const char *filePath, size_t bytesBeforeRotation);
 
-// TODO
-extern Logger_T Logger_newMemoryFileLogger(const char *name, Logger_Level_T level);
+/**
+ * Construct a Logger_T using MemoryFileHandler as handler and SimpleFormatter as formatter.
+ *
+ * Checked runtime errors:
+ *  - @param name must not be NULL.
+ *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
+ *  - @param filePath must not be NULL.
+ *  - In case of IO errors this function will return NULL and errno will be set to a proper value.
+ *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *
+ * @param name The logger name.
+ * @param level The logger and handler level.
+ * @param filePath The path to the file in which the handler will write.
+ * @param bytesBeforeWrite The number of bytes before performing a write.
+ * @return A new Logger_T instance.
+ */
+extern Logger_T
+Logger_newMemoryFileLogger(const char *name, Logger_Level_T level, const char *filePath, size_t bytesBeforeWrite);
 
 #ifdef __cplusplus
 }

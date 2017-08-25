@@ -7,9 +7,9 @@
  */
 
 #include <stdlib.h>
-#include "logger_builtin_formatters.h"
-#include "logger_builtin_handlers.h"
 #include "logger.h"
+#include "logger_builtin_handlers.h"
+#include "logger_builtin_formatters.h"
 
 /*
  *
@@ -63,7 +63,7 @@ void initializeLogging(void) {
     /*
      * Setup logger
      */
-    gLogger = Logger_new("Example Logger", LOGGER_LEVEL_NOTICE);
+    gLogger = Logger_new("CraftedLogger", LOGGER_LEVEL_NOTICE);
     Logger_addHandler(gLogger, gStdoutHandler);
     Logger_addHandler(gLogger, gStderrHandler);
     Logger_addHandler(gLogger, gFileHandler);

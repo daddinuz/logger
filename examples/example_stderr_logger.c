@@ -3,7 +3,7 @@
  *
  * Author: daddinuz
  * email:  daddinuz@gmail.com
- * Date:   August 18, 2017
+ * Date:   August 25, 2017
  */
 
 #include <stdlib.h>
@@ -13,7 +13,7 @@
  *
  */
 int main() {
-    Logger_T gLogger = Logger_newFileLogger("FileLogger", LOGGER_LEVEL_DEBUG, "example_file_logger.log");
+    Logger_T gLogger = Logger_newStderrLogger("StderrLogger", LOGGER_LEVEL_DEBUG);
 
     Logger_logDebug(gLogger, "%s", "Debug log message");
     Logger_logNotice(gLogger, "%s", "Notice log message");

@@ -13,7 +13,7 @@
  *
  */
 int main() {
-    Logger_T gLogger = Logger_newFileLogger("FileLogger", LOGGER_LEVEL_DEBUG, "example_file_logger.log");
+    Logger_T gLogger = Logger_newRotatingFileLogger("RotatingFileLogger", LOGGER_LEVEL_DEBUG, "example_rotating_file_logger.log", 256);
 
     Logger_logDebug(gLogger, "%s", "Debug log message");
     Logger_logNotice(gLogger, "%s", "Notice log message");
