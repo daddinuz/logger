@@ -9,6 +9,8 @@
 #ifndef LOGGER_LOGGER_INCLUDED
 #define LOGGER_LOGGER_INCLUDED
 
+#define LOGGER_VERSION "0.2.0"
+
 #include "logger_err.h"
 #include "logger_level.h"
 #include "logger_string.h"
