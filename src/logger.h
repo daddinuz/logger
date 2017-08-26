@@ -28,7 +28,7 @@ typedef struct Logger_T *Logger_T;
  * Checked runtime errors:
  *  - @param name must not be NULL.
  *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
- *  - In case of OOM this function will return NULL and errno is set to ENOMEM.
+ *  - In case of OOM this function will return NULL.
  *
  * @param name The logger name.
  * @param level The logger level.
@@ -108,11 +108,9 @@ extern Logger_Handler_T Logger_popHandler(Logger_T self);
  * Checked runtime errors:
  *  - @param self must not be NULL.
  *  - @param name must not be NULL.
- *  - In case of OOM this function will return NULL and errno is set to ENOMEM.
  *
  * @param self The Logger_T instance.
  * @param name The name for the logger.
- * @return The logger name.
  */
 extern void Logger_setName(Logger_T self, const char *name);
 
@@ -134,12 +132,13 @@ extern void Logger_setLevel(Logger_T self, Logger_Level_T level);
  * Checked runtime errors:
  *  - @param self must not be NULL.
  *  - @param handler must not be NULL.
- *  - In case of OOM this function will set errno to ENOMEM.
+ *  - In case of OOM this function will return NULL.
  *
  * @param self The Logger_T instance.
  * @param handler The Logger_Handler_T instance to be added.
+ * @return The added handler or NULL.
  */
-extern void Logger_addHandler(Logger_T self, Logger_Handler_T handler);
+extern Logger_Handler_T Logger_addHandler(Logger_T self, Logger_Handler_T handler);
 
 /**
  * Check if a record with the given level would actually be logged by this logger.

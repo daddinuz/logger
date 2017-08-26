@@ -28,12 +28,12 @@ typedef struct Logger_Handler_Result_T {
  *  - @param stream must be one of LOGGER_CONSOLE_STREAM_STDERR or LOGGER_CONSOLE_STREAM_STDOUT.
  *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
  *  - @param formatter must not be NULL.
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of errors this function will set Logger_Handler_Result_T.err to the error value.
  *
  * @param stream The stream in which this handler will write.
  * @param level The level for this handler.
  * @param formatter The formatter for this handler.
- * @return A new instance of Logger_Handler_T.
+ * @return A Logger_Handler_Result_T wrapper. If no err occurred handler will be the new instance of a Logger_Handler_T.
  */
 extern Logger_Handler_Result_T Logger_Handler_newConsoleHandler(
         Logger_Level_T level, Logger_Formatter_T formatter, Logger_OStream_T stream
@@ -46,13 +46,12 @@ extern Logger_Handler_Result_T Logger_Handler_newConsoleHandler(
  *  - @param filePath must not be NULL.
  *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
  *  - @param formatter must not be NULL.
- *  - In case of IO errors this function will return NULL and errno will be set to a proper value.
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of errors this function will set Logger_Handler_Result_T.err to the error value.
  *
  * @param filePath The path to the file in which the handler will write.
  * @param level The level for this handler.
  * @param formatter The formatter for this handler.
- * @return A new instance of Logger_Handler_T.
+ * @return A Logger_Handler_Result_T wrapper. If no err occurred handler will be the new instance of a Logger_Handler_T.
  */
 extern Logger_Handler_Result_T Logger_Handler_newFileHandler(
         Logger_Level_T level, Logger_Formatter_T formatter, const char *filePath
@@ -65,14 +64,13 @@ extern Logger_Handler_Result_T Logger_Handler_newFileHandler(
  *  - @param filePath must not be NULL.
  *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
  *  - @param formatter must not be NULL.
- *  - In case of IO errors this function will return NULL and errno will be set to a proper value.
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of errors this function will set Logger_Handler_Result_T.err to the error value.
  *
  * @param filePath The path to the file in which the handler will write.
  * @param level The level for this handler.
  * @param formatter The formatter for this handler.
  * @param bytesBeforeRotation The number of bytes to be written before rotating.
- * @return A new instance of Logger_Handler_T.
+ * @return A Logger_Handler_Result_T wrapper. If no err occurred handler will be the new instance of a Logger_Handler_T.
  */
 extern Logger_Handler_Result_T Logger_Handler_newRotatingFileHandler(
         Logger_Level_T level, Logger_Formatter_T formatter, const char *filePath, size_t bytesBeforeRotation
@@ -85,14 +83,13 @@ extern Logger_Handler_Result_T Logger_Handler_newRotatingFileHandler(
  *  - @param filePath must not be NULL.
  *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
  *  - @param formatter must not be NULL.
- *  - In case of IO errors this function will return NULL and errno will be set to a proper value.
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of errors this function will set Logger_Handler_Result_T.err to the error value.
  *
  * @param filePath The path to the file in which the handler will write.
  * @param level The level for this handler.
  * @param formatter The formatter for this handler.
  * @param bytesBeforeWrite The number of bytes before performing a write.
- * @return A new instance of Logger_Handler_T.
+ * @return A Logger_Handler_Result_T wrapper. If no err occurred handler will be the new instance of a Logger_Handler_T.
  */
 extern Logger_Handler_Result_T Logger_Handler_newMemoryFileHandler(
         Logger_Level_T level, Logger_Formatter_T formatter, const char *filePath, size_t bytesBeforeWrite

@@ -6,7 +6,6 @@
  * Date:   August 07, 2017 
  */
 
-#include <errno.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "logger_handler.h"
@@ -29,16 +28,14 @@ Logger_Handler_T Logger_Handler_new(
     assert(flushCallback);
     assert(closeCallback);
     Logger_Handler_T self = malloc(sizeof(*self));
-    if (!self) {
-        errno = ENOMEM;
-        return NULL;
+    if (self) {
+        self->context = NULL;
+        self->level = LOGGER_LEVEL_DEBUG;
+        self->formatter = NULL;
+        self->publishCallback = publishCallback;
+        self->flushCallback = flushCallback;
+        self->closeCallback = closeCallback;
     }
-    self->context = NULL;
-    self->level = LOGGER_LEVEL_DEBUG;
-    self->formatter = NULL;
-    self->publishCallback = publishCallback;
-    self->flushCallback = flushCallback;
-    self->closeCallback = closeCallback;
     return self;
 }
 

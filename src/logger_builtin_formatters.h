@@ -19,7 +19,7 @@ extern "C" {
  * Allocates and initializes a pre-defined Logger_Formatter_T.
  *
  * Checked runtime errors:
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of OOM this function will return NULL.
  *
  * @return A new instance of a pre-defined Logger_Formatter_T.
  */

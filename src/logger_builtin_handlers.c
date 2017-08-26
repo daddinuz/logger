@@ -29,7 +29,6 @@ static void invalidate_ptr(void **ref, void destructor()) {
 static Logger_Err_T consoleHandlerPublishCallback(Logger_Handler_T handler, Logger_Record_T record) {
     assert(handler);
     assert(record);
-
     char *log = NULL;
     Logger_Err_T err = LOGGER_ERR_OK;
     FILE *file = Logger_Handler_getContext(handler);
@@ -93,7 +92,6 @@ Logger_Handler_Result_T Logger_Handler_newConsoleHandler(
 static Logger_Err_T fileHandlerPublishCallback(Logger_Handler_T handler, Logger_Record_T record) {
     assert(handler);
     assert(record);
-
     char *log = NULL;
     Logger_Err_T err = LOGGER_ERR_OK;
     FILE *file = Logger_Handler_getContext(handler);
@@ -172,7 +170,6 @@ typedef struct rotatingFileHandlerContext {
 static Logger_Err_T rotatingFileHandlerPublishCallback(Logger_Handler_T handler, Logger_Record_T record) {
     assert(handler);
     assert(record);
-
     char *log = NULL;
     sds realFilePath = NULL;
     Logger_Err_T err = LOGGER_ERR_OK;
@@ -318,7 +315,6 @@ typedef struct memoryFileHandlerContext {
 static Logger_Err_T memoryFileHandlerPublishCallback(Logger_Handler_T handler, Logger_Record_T record) {
     assert(handler);
     assert(record);
-
     char *log = NULL;
     Logger_Err_T err = LOGGER_ERR_OK;
     Logger_Formatter_T formatter = Logger_Handler_getFormatter(handler);

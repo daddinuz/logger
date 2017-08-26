@@ -28,7 +28,7 @@ typedef struct Logger_Formatter_T *Logger_Formatter_T;
  *
  * Note for implementation:
  *  - Those functions must assert that record is not NULL.
- *  - Those functions must return NULL and set errno to ENOMEM in case of OOM.
+ *  - Those functions must return NULL in case of OOM.
  */
 typedef char *Logger_Formatter_formatRecordCallback_T(Logger_Record_T record);
 
@@ -46,7 +46,7 @@ typedef void Logger_Formatter_deleteFormattedRecordCallback_T(char *formattedRec
  * Checked runtime errors:
  *  - @param formatRecordCallback must not be NULL.
  *  - @param deleteFormattedRecordCallback must not be NULL.
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of OOM this function will return NULL.
  *
  * @param formatRecordCallback Formatter function that will be called to format a Logger_Record_T.
  * @param deleteFormattedRecordCallback Destructor function that will be called by Logger_Formatter_deleteMessage.
@@ -73,7 +73,7 @@ extern void Logger_Formatter_delete(Logger_Formatter_T *ref);
  * Checked runtime errors:
  *  - @param self must not be NULL.
  *  - @param record must not be NULL.
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of OOM this function will return NULL.
  *
  * @param self The Logger_Formatter_T instance.
  * @param record A Logger_Record_T instance.

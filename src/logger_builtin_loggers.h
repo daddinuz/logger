@@ -27,11 +27,11 @@ typedef struct Logger_Result_T {
  * Checked runtime errors:
  *  - @param name must not be NULL.
  *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of errors this function will set Logger_Result_T.err to the error value.
  *
  * @param name The logger name.
  * @param level The logger and handler level.
- * @return A new Logger_T instance.
+ * @return A Logger_Result_T wrapper. If no err occurred logger will be the new instance of a Logger_T.
  */
 extern Logger_Result_T Logger_newStdoutLogger(const char *name, Logger_Level_T level);
 
@@ -42,11 +42,11 @@ extern Logger_Result_T Logger_newStdoutLogger(const char *name, Logger_Level_T l
  * Checked runtime errors:
  *  - @param name must not be NULL.
  *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of errors this function will set Logger_Result_T.err to the error value.
  *
  * @param name The logger name.
  * @param level The logger and handler level.
- * @return A new Logger_T instance.
+ * @return A Logger_Result_T wrapper. If no err occurred logger will be the new instance of a Logger_T.
  */
 extern Logger_Result_T Logger_newStderrLogger(const char *name, Logger_Level_T level);
 
@@ -57,13 +57,12 @@ extern Logger_Result_T Logger_newStderrLogger(const char *name, Logger_Level_T l
  *  - @param name must not be NULL.
  *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
  *  - @param filePath must not be NULL.
- *  - In case of IO errors this function will return NULL and errno will be set to a proper value.
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of errors this function will set Logger_Result_T.err to the error value.
  *
  * @param name The logger name.
  * @param level The logger and handler level.
  * @param filePath The path to the file in which the handler will write.
- * @return A new Logger_T instance.
+ * @return A Logger_Result_T wrapper. If no err occurred logger will be the new instance of a Logger_T.
  */
 extern Logger_Result_T Logger_newFileLogger(const char *name, Logger_Level_T level, const char *filePath);
 
@@ -74,14 +73,13 @@ extern Logger_Result_T Logger_newFileLogger(const char *name, Logger_Level_T lev
  *  - @param name must not be NULL.
  *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
  *  - @param filePath must not be NULL.
- *  - In case of IO errors this function will return NULL and errno will be set to a proper value.
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of errors this function will set Logger_Result_T.err to the error value.
  *
  * @param name The logger name.
  * @param level The logger and handler level.
  * @param filePath The path to the file in which the handler will write.
  * @param bytesBeforeRotation The number of bytes to be written before rotating.
- * @return A new Logger_T instance.
+ * @return A Logger_Result_T wrapper. If no err occurred logger will be the new instance of a Logger_T.
  */
 extern Logger_Result_T
 Logger_newRotatingFileLogger(const char *name, Logger_Level_T level, const char *filePath, size_t bytesBeforeRotation);
@@ -93,14 +91,13 @@ Logger_newRotatingFileLogger(const char *name, Logger_Level_T level, const char 
  *  - @param name must not be NULL.
  *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
  *  - @param filePath must not be NULL.
- *  - In case of IO errors this function will return NULL and errno will be set to a proper value.
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of errors this function will set Logger_Result_T.err to the error value.
  *
  * @param name The logger name.
  * @param level The logger and handler level.
  * @param filePath The path to the file in which the handler will write.
  * @param bytesBeforeWrite The number of bytes before performing a write.
- * @return A new Logger_T instance.
+ * @return A Logger_Result_T wrapper. If no err occurred logger will be the new instance of a Logger_T.
  */
 extern Logger_Result_T
 Logger_newMemoryFileLogger(const char *name, Logger_Level_T level, const char *filePath, size_t bytesBeforeWrite);

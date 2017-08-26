@@ -6,7 +6,6 @@
  * Date:   August 07, 2017 
  */
 
-#include <errno.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "logger_formatter.h"
@@ -23,12 +22,10 @@ Logger_Formatter_T Logger_Formatter_new(
     assert(formatRecordCallback);
     assert(deleteFormattedRecordCallback);
     Logger_Formatter_T self = malloc(sizeof(*self));
-    if (!self) {
-        errno = ENOMEM;
-        return NULL;
+    if (self) {
+        self->formatRecordCallback = formatRecordCallback;
+        self->deleteFormattedRecordCallback = deleteFormattedRecordCallback;
     }
-    self->formatRecordCallback = formatRecordCallback;
-    self->deleteFormattedRecordCallback = deleteFormattedRecordCallback;
     return self;
 }
 

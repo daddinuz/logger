@@ -6,7 +6,6 @@
  * Date:   August 04, 2017 
  */
 
-#include <errno.h>
 #include <assert.h>
 #include "sds/sds.h"
 #include "logger_builtin_formatters.h"
@@ -30,9 +29,6 @@ static char *formatRecordCallback(Logger_Record_T record) {
             Logger_Record_getFunction(record),
             Logger_Record_getMessage(record)
     );
-    if (!result) {
-        errno = ENOMEM;
-    }
     return result;
 }
 

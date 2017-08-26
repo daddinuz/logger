@@ -10,7 +10,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <assert.h>
-#include <errno.h>
 #include "logger.h"
 
 typedef struct Logger_HandlersList_T {
@@ -21,12 +20,10 @@ typedef struct Logger_HandlersList_T {
 static Logger_HandlersList_T Logger_HandlersList_new(Logger_Handler_T handler, Logger_HandlersList_T next) {
     assert(handler);
     Logger_HandlersList_T self = malloc(sizeof(*self));
-    if (!self) {
-        errno = ENOMEM;
-        return NULL;
+    if (self) {
+        self->handler = handler;
+        self->next = next;
     }
-    self->handler = handler;
-    self->next = next;
     return self;
 }
 
@@ -48,13 +45,11 @@ Logger_T Logger_new(const char *name, Logger_Level_T level) {
     assert(name);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
     Logger_T self = malloc(sizeof(*self));
-    if (!self) {
-        errno = ENOMEM;
-        return NULL;
+    if (self) {
+        self->name = name;
+        self->level = level;
+        self->handlers = NULL;
     }
-    self->name = name;
-    self->level = level;
-    self->handlers = NULL;
     return self;
 }
 
@@ -140,15 +135,15 @@ void Logger_setLevel(Logger_T self, Logger_Level_T level) {
     self->level = level;
 }
 
-void Logger_addHandler(Logger_T self, Logger_Handler_T handler) {
+Logger_Handler_T Logger_addHandler(Logger_T self, Logger_Handler_T handler) {
     assert(self);
     assert(handler);
     Logger_HandlersList_T head = Logger_HandlersList_new(handler, self->handlers);
     if (!head) {
-        errno = ENOMEM;
-        return;
+        return NULL;
     }
     self->handlers = head;
+    return handler;
 }
 
 bool Logger_isLoggable(Logger_T self, Logger_Level_T level) {

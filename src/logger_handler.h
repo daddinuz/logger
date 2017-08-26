@@ -30,8 +30,6 @@ typedef struct Logger_Handler_T *Logger_Handler_T;
  * Note for implementation:
  *  - Those functions must assert that handler is not NULL.
  *  - Those functions must assert that record is not NULL.
- *  - In case of OOM those functions will set errno to ENOMEM.
- *  - In case of I/O error those functions will set errno to EIO
  */
 typedef Logger_Err_T Logger_Handler_PublishCallback_T(Logger_Handler_T handler, Logger_Record_T record);
 
@@ -59,7 +57,7 @@ typedef void Logger_Handler_CloseCallback_T(Logger_Handler_T handler);
  *  - @param publishCallback must not be NULL.
  *  - @param flushCallback must not be NULL.
  *  - @param closeCallback must not be NULL.  
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of OOM this function will return NULL.
  *
  * @param publishCallback The callback used to publish the formatter record.
  * @param flushCallback The callback used to flush the buffer.
@@ -88,8 +86,6 @@ extern void Logger_Handler_delete(Logger_Handler_T *ref);
  * Checked runtime errors:
  *  - @param self must not be NULL.
  *  - @param record must not be NULL.
- *  - In case of OOM this function will set errno to ENOMEM.
- *  - In case of I/O error this function will set errno to EIO.
  *
  * @param self The Logger_Handler_T instance.
  * @param record A Logger_Record_T instance.

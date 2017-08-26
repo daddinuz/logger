@@ -6,7 +6,6 @@
  * Date:   August 07, 2017 
  */
 
-#include <errno.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "logger_record.h"
@@ -31,17 +30,15 @@ Logger_Record_T Logger_Record_new(
     assert(file);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
     Logger_Record_T self = malloc(sizeof(*self));
-    if (!self) {
-        errno = ENOMEM;
-        return NULL;
+    if (self) {
+        self->message = message;
+        self->loggerName = loggerName;
+        self->function = function;
+        self->file = file;
+        self->line = line;
+        self->timestamp = timestamp;
+        self->level = level;
     }
-    self->message = message;
-    self->loggerName = loggerName;
-    self->function = function;
-    self->file = file;
-    self->line = line;
-    self->timestamp = timestamp;
-    self->level = level;
     return self;
 }
 

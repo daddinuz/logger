@@ -6,7 +6,6 @@
  * Date:   August 09, 2017 
  */
 
-#include <errno.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -20,12 +19,10 @@ static sds format(const char *fmt, va_list args) {
     do {
         self = sdsempty();
         if (!self) {
-            errno = ENOMEM;
             break;
         }
         self = sdscatvprintf(self, fmt, args);
         if (!self) {
-            errno = ENOMEM;
             sdsfree(self);
             break;
         }
@@ -35,11 +32,7 @@ static sds format(const char *fmt, va_list args) {
 
 Logger_String_T Logger_String_new(const char *str) {
     assert(str);
-    sds self = sdsnew(str);
-    if (!self) {
-        errno = ENOMEM;
-    }
-    return self;
+    return sdsnew(str);
 }
 
 Logger_String_T Logger_String_from(const char *fmt, ...) {
