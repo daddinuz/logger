@@ -30,23 +30,20 @@ target_link_libraries(${PROJECT_NAME} PRIVATE sds)
 #####
 # Tests
 ###
-add_executable(test_logger_buffer test/test_logger_buffer.c)
-target_link_libraries(test_logger_buffer PRIVATE ${PROJECT_NAME})
-
-add_executable(test_logger_message test/test_logger_message.c)
-target_link_libraries(test_logger_message PRIVATE ${PROJECT_NAME})
-
-add_executable(test_logger_formatter test/test_logger_formatter.c)
-target_link_libraries(test_logger_formatter PRIVATE ${PROJECT_NAME})
-
-add_executable(test_logger_handler test/test_logger_handler.c)
-target_link_libraries(test_logger_handler PRIVATE ${PROJECT_NAME})
-
-add_executable(test_logger test/test_logger.c)
-target_link_libraries(test_logger PRIVATE ${PROJECT_NAME})
+file(GLOB TEST_SOURCES ${PROJECT_SOURCE_DIR}/test/test_*.c)
+foreach (source_file ${TEST_SOURCES})
+    get_filename_component(target ${source_file} NAME_WE)
+    add_executable(${target} ${source_file})
+    target_link_libraries(${target} PRIVATE ${PROJECT_NAME})
+    add_test(${target} ${target})
+endforeach (source_file ${TEST_SOURCES})
 
 #####
 # Examples
 ###
-add_executable(example examples/example.c)
-target_link_libraries(example PRIVATE ${PROJECT_NAME})
+file(GLOB EXAMPLE_SOURCES ${PROJECT_SOURCE_DIR}/examples/example_*.c)
+foreach (source_file ${EXAMPLE_SOURCES})
+    get_filename_component(target ${source_file} NAME_WE)
+    add_executable(${target} ${source_file})
+    target_link_libraries(${target} PRIVATE ${PROJECT_NAME})
+endforeach (source_file ${EXAMPLE_SOURCES})

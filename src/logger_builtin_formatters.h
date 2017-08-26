@@ -6,10 +6,10 @@
  * Date:   August 04, 2017 
  */
 
-#ifndef LOGGER_LOGGER_FORMATTERS_INCLUDED
-#define LOGGER_LOGGER_FORMATTERS_INCLUDED
+#ifndef LOGGER_LOGGER_BUILTIN_FORMATTERS_INCLUDED
+#define LOGGER_LOGGER_BUILTIN_FORMATTERS_INCLUDED
 
-#include "logger.h"
+#include "logger_formatter.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,7 +19,7 @@ extern "C" {
  * Allocates and initializes a pre-defined Logger_Formatter_T.
  *
  * Checked runtime errors:
- *  - In case of OOM this function will return NULL and errno will be set to ENOMEM.
+ *  - In case of OOM this function will return NULL.
  *
  * @return A new instance of a pre-defined Logger_Formatter_T.
  */
@@ -29,4 +29,4 @@ extern Logger_Formatter_T Logger_Formatter_newSimpleFormatter(void);
 }
 #endif
 
-#endif /* LOGGER_LOGGER_FORMATTERS_INCLUDED */
+#endif /* LOGGER_LOGGER_BUILTIN_FORMATTERS_INCLUDED */

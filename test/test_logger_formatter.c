@@ -3,98 +3,78 @@
  *
  * Author: daddinuz
  * email:  daddinuz@gmail.com
- * Date:   July 19, 2017 
+ * Date:   August 08, 2017 
  */
 
-#include <errno.h>
 #include "sds/sds.h"
-#include "logger.h"
 #include "Traits/Traits.h"
+#include "logger_formatter.h"
 
-static Logger_Message_T gMessage = NULL;
+size_t gFormatRecordCalls = 0;
+size_t gDeleteFormattedRecordCalls = 0;
+char *G_EXPECTED_FORMATTED_RECORD = NULL;
+Logger_Record_T gRecord = NULL;
 
-static char *formatMessageCallback(Logger_Message_T message);
-static void deleteMessageCallback(char **self);
+/*
+ *
+ */
+static char *formatRecordCallback(Logger_Record_T record) {
+    assert(record);
+    assert_equal(gRecord, record);
+    G_EXPECTED_FORMATTED_RECORD = sdsnew("EXPECTED_FORMATTED_RECORD");
+    assert_not_null(G_EXPECTED_FORMATTED_RECORD);
+    gFormatRecordCalls++;
+    return G_EXPECTED_FORMATTED_RECORD;
+}
 
-TRAITS(CanCreateANewLoggerFormatter) {
-    sds expected_message = formatMessageCallback(gMessage);
-
-    Logger_Formatter_T sut = Logger_Formatter_new(formatMessageCallback, deleteMessageCallback);
-    assert_not_null(sut);
-
-    assert_equal(formatMessageCallback, Logger_Formatter_getFormatContentCallback(sut));
-    assert_equal(deleteMessageCallback, Logger_Formatter_getDeleteContentCallback(sut));
-
-    sds actual_message = Logger_Formatter_formatMessage(sut, gMessage);
-    assert_not_null(actual_message);
-    assert_string_equal(expected_message, actual_message);
-
-    Logger_Formatter_deleteMessage(sut, &actual_message);
-    assert_null(actual_message);
-
-    Logger_Formatter_delete(&sut);
-    assert_null(sut);
-
-    sdsfree(expected_message);
+static void deleteRecordCallback(char *formattedRecord) {
+    assert(formattedRecord);
+    assert_equal(G_EXPECTED_FORMATTED_RECORD, formattedRecord);
+    sdsfree(formattedRecord);
+    gDeleteFormattedRecordCalls++;
 }
 
 /*
  *
  */
-char *formatMessageCallback(Logger_Message_T message) {
-    char time_string[32] = "";
-    time_t timestamp = Logger_Message_getTimestamp(message);
-    strftime(time_string, sizeof(time_string) / sizeof(time_string[0]), "%Y-%m-%d %H:%M:%S", localtime(&timestamp));
-    sds result = sdscatprintf(
-            sdsempty(), "%s [%s] %s %s:%zu:%s\n%s",
-            Logger_Message_getLoggerName(message),
-            Logger_Level_getName(Logger_Message_getLevel(message)),
-            time_string,
-            Logger_Message_getFile(message),
-            Logger_Message_getLine(message),
-            Logger_Message_getFunction(message),
-            Logger_Message_getContent(message)
-    );
-    if (!result) {
-        errno = ENOMEM;
-    }
-    return result;
+TRAITS(CanCreateALoggerFormatter) {
+    Logger_Formatter_T sut = Logger_Formatter_new(formatRecordCallback, deleteRecordCallback);
+    assert_not_null(sut);
+
+    char *formattedRecord = Logger_Formatter_formatRecord(sut, gRecord);
+    assert_equal(1, gFormatRecordCalls);
+
+    Logger_Formatter_deleteFormattedRecord(sut, formattedRecord);
+    assert_equal(1, gDeleteFormattedRecordCalls);
+
+    Logger_Formatter_delete(&sut);
+    assert_null(sut);
 }
 
-void deleteMessageCallback(char **self) {
-    assert(self);
-    assert(*self);
-    sdsfree(*self);
-    *self = NULL;
-}
-
+/*
+ *
+ */
 int main() {
-    traits_run(CanCreateANewLoggerFormatter);
+    traits_run(CanCreateALoggerFormatter);
     return 0;
 }
 
+/*
+ *
+ */
 void traits_setup(void) {
-    Logger_String_T logger_name = "foo";
-    Logger_Level_T level = LOGGER_LEVEL_DEBUG;
-    Logger_String_T file = __FILE__;
-    size_t line = __LINE__;
-    Logger_String_T function = __func__;
-    time_t timestamp = time(NULL);
-    Logger_String_T text = "Hello World!\n";
-
-    gMessage = Logger_Message_newFromVariadicArguments(logger_name, level, file, line, function, timestamp, "%s", text);
-    assert_not_null(gMessage);
-
-    assert_string_equal(logger_name, Logger_Message_getLoggerName(gMessage));
-    assert_equal(level, Logger_Message_getLevel(gMessage));
-    assert_string_equal(file, Logger_Message_getFile(gMessage));
-    assert_equal(line, Logger_Message_getLine(gMessage));
-    assert_string_equal(function, Logger_Message_getFunction(gMessage));
-    assert_equal(timestamp, Logger_Message_getTimestamp(gMessage));
-    assert_string_equal(text, Logger_Message_getContent(gMessage));
+    gFormatRecordCalls = 0;
+    gDeleteFormattedRecordCalls = 0;
+    gRecord = Logger_Record_new("EXPECTED_LOGGER_NAME", LOGGER_LEVEL_NOTICE, "EXPECTED_FILE", 0, "EXPECTED_FUNCTION", 0, Logger_String_new("EXPECTED_MESSAGE"));
+    assert_not_null(gRecord);
 }
 
 void traits_teardown(void) {
-    Logger_Message_delete(&gMessage);
-    assert_null(gMessage);
+    assert_not_null(gRecord);
+    assert_not_null(Logger_Record_getMessage(gRecord));
+    Logger_String_T message = Logger_Record_getMessage(gRecord);
+    Logger_String_delete(&message);
+    assert_null(message);
+    Logger_Record_delete(&gRecord);
+    assert_null(gRecord);
 }
