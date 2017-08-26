@@ -49,14 +49,14 @@ Logger_T Logger_newStdoutLogger(const char *name, Logger_Level_T level) {
     assert(name);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
 
-    NEW_LOGGER_FUNCTION_TEMPLATE(name, level, Logger_Handler_newConsoleHandler, LOGGER_CONSOLE_STREAM_STDOUT)
+    NEW_LOGGER_FUNCTION_TEMPLATE(name, level, Logger_Handler_newConsoleHandler, LOGGER_OSTREAM_STDOUT)
 }
 
 Logger_T Logger_newStderrLogger(const char *name, Logger_Level_T level) {
     assert(name);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
 
-    NEW_LOGGER_FUNCTION_TEMPLATE(name, level, Logger_Handler_newConsoleHandler, LOGGER_CONSOLE_STREAM_STDERR)
+    NEW_LOGGER_FUNCTION_TEMPLATE(name, level, Logger_Handler_newConsoleHandler, LOGGER_OSTREAM_STDERR)
 }
 
 Logger_T Logger_newFileLogger(const char *name, Logger_Level_T level, const char *filePath) {

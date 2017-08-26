@@ -32,7 +32,7 @@ typedef struct Logger_Handler_T *Logger_Handler_T;
  *  - In case of OOM those functions will set errno to ENOMEM.
  *  - In case of I/O error those functions will set errno to EIO
  */
-typedef void (*Logger_Handler_publishCallback_T)(Logger_Handler_T handler, Logger_Record_T record);
+typedef void (*Logger_Handler_PublishCallback_T)(Logger_Handler_T handler, Logger_Record_T record);
 
 /**
  * The functions with this signature are used to flush the buffer associated to the handler.
@@ -40,7 +40,7 @@ typedef void (*Logger_Handler_publishCallback_T)(Logger_Handler_T handler, Logge
  * Note for implementation:
  *  - Those functions must assert that handler is not NULL.
  */
-typedef void (*Logger_Handler_flushCallback_T)(Logger_Handler_T handler);
+typedef void (*Logger_Handler_FlushCallback_T)(Logger_Handler_T handler);
 
 /**
  * The functions with this signature are used to close the buffer associated to the handler
@@ -49,7 +49,7 @@ typedef void (*Logger_Handler_flushCallback_T)(Logger_Handler_T handler);
  * Note for implementation:
  *  - Those functions must assert that handler is not NULL.
  */
-typedef void (*Logger_Handler_closeCallback_T)(Logger_Handler_T handler);
+typedef void (*Logger_Handler_CloseCallback_T)(Logger_Handler_T handler);
 
 /**
  * Construct a Logger_Handler_T.
@@ -66,9 +66,9 @@ typedef void (*Logger_Handler_closeCallback_T)(Logger_Handler_T handler);
  * @return A new instance of Logger_Handler_T.
  */
 extern Logger_Handler_T Logger_Handler_new(
-        Logger_Handler_publishCallback_T publishCallback,
-        Logger_Handler_flushCallback_T flushCallback,
-        Logger_Handler_closeCallback_T closeCallback
+        Logger_Handler_PublishCallback_T publishCallback,
+        Logger_Handler_FlushCallback_T flushCallback,
+        Logger_Handler_CloseCallback_T closeCallback
 );
 
 /**

@@ -7,12 +7,13 @@
  */
 
 #include <stdio.h>
-#include <assert.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "sds/sds.h"
+#include "logger_stream.h"
 #include "logger_builtin_handlers.h"
 
-static void invalidate_ptr(void **ref, void (*destructor)()) {
+static void invalidate_ptr(void **ref, void destructor()) {
     assert(ref);
     assert(*ref);
     assert(destructor);
@@ -51,16 +52,16 @@ static void consoleHandlerCloseCallback(Logger_Handler_T handler) {
 }
 
 Logger_Handler_T Logger_Handler_newConsoleHandler(
-        Logger_Level_T level, Logger_Formatter_T formatter, Logger_ConsoleStream_T stream
+        Logger_Level_T level, Logger_Formatter_T formatter, Logger_OStream_T stream
 ) {
-    assert(LOGGER_CONSOLE_STREAM_STDERR == stream || LOGGER_CONSOLE_STREAM_STDOUT == stream);
+    assert(LOGGER_OSTREAM_STDERR == stream || LOGGER_OSTREAM_STDOUT == stream);
     assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
     assert(formatter);
     Logger_Handler_T self = Logger_Handler_new(consoleHandlerPublishCallback, consoleHandlerFlushCallback, consoleHandlerCloseCallback);
     if (!self) {
         return NULL;
     }
-    Logger_Handler_setContext(self, LOGGER_CONSOLE_STREAM_STDOUT == stream ? stdout : stderr);
+    Logger_Handler_setContext(self, LOGGER_OSTREAM_STDOUT == stream ? stdout : stderr);
     Logger_Handler_setLevel(self, level);
     Logger_Handler_setFormatter(self, formatter);
     return self;

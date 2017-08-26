@@ -54,8 +54,8 @@ void initializeLogging(void) {
     /*
      * Setup handlers
      */
-    gStdoutHandler = Logger_Handler_newConsoleHandler(LOGGER_LEVEL_DEBUG, gFormatter, LOGGER_CONSOLE_STREAM_STDOUT);
-    gStderrHandler = Logger_Handler_newConsoleHandler(LOGGER_LEVEL_ERROR, gFormatter, LOGGER_CONSOLE_STREAM_STDERR);
+    gStdoutHandler = Logger_Handler_newConsoleHandler(LOGGER_LEVEL_DEBUG, gFormatter, LOGGER_OSTREAM_STDOUT);
+    gStderrHandler = Logger_Handler_newConsoleHandler(LOGGER_LEVEL_ERROR, gFormatter, LOGGER_OSTREAM_STDERR);
     gFileHandler = Logger_Handler_newFileHandler(LOGGER_LEVEL_WARNING, gFormatter, "file_handler.log");
     gRotatingFileHandler = Logger_Handler_newRotatingFileHandler(LOGGER_LEVEL_INFO, gFormatter, "rotating_file_handler.log", 256);
     gMemoryFileHandler = Logger_Handler_newMemoryFileHandler(LOGGER_LEVEL_DEBUG, gFormatter, "memory_file_handler.log", 512);

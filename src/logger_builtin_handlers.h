@@ -9,16 +9,12 @@
 #ifndef LOGGER_LOGGER_BUILTIN_HANDLERS_INCLUDED
 #define LOGGER_LOGGER_BUILTIN_HANDLERS_INCLUDED
 
+#include "logger_stream.h"
 #include "logger_handler.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef enum Logger_ConsoleStream_T {
-    LOGGER_CONSOLE_STREAM_STDERR,
-    LOGGER_CONSOLE_STREAM_STDOUT,
-} Logger_ConsoleStream_T;
 
 /**
  * Construct a Logger_Handler_T.
@@ -35,7 +31,7 @@ typedef enum Logger_ConsoleStream_T {
  * @return A new instance of Logger_Handler_T.
  */
 extern Logger_Handler_T Logger_Handler_newConsoleHandler(
-        Logger_Level_T level, Logger_Formatter_T formatter, Logger_ConsoleStream_T stream
+        Logger_Level_T level, Logger_Formatter_T formatter, Logger_OStream_T stream
 );
 
 /**
