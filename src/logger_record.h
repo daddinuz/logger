@@ -37,18 +37,18 @@ typedef struct Logger_Record_T *Logger_Record_T;
  *  - @param file must not be NULL.
  *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
  *
- * @param message The raw log message, before localization or formatting.
  * @param loggerName The source logger's name.
- * @param function The name of the function in which the logging request was issued.
+ * @param level The logging message level.
  * @param file The name of the file in which the logging request was issued.
  * @param line The line of the file in which the logging request was issued.
+ * @param function The name of the function in which the logging request was issued.
  * @param timestamp The timestamp in which the logging request was issued (in milliseconds since 1970).
- * @param level The logging message level.
+ * @param message The raw log message, before localization or formatting.
  * @return A new Logger_Record_T instance.
  */
 extern Logger_Record_T Logger_Record_new(
-        Logger_String_T message, const char *loggerName, const char *function, const char *file,
-        size_t line, time_t timestamp, Logger_Level_T level
+        const char *loggerName, Logger_Level_T level, const char *file, size_t line, const char *function,
+        time_t timestamp, Logger_String_T message
 );
 
 /**

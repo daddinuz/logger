@@ -9,6 +9,7 @@
 #ifndef LOGGER_LOGGER_INCLUDED
 #define LOGGER_LOGGER_INCLUDED
 
+#include "logger_err.h"
 #include "logger_level.h"
 #include "logger_string.h"
 #include "logger_record.h"
@@ -161,27 +162,44 @@ extern bool Logger_isLoggable(Logger_T self, Logger_Level_T level);
  *
  * @param self The Logger_T instance.
  * @param record The Logger_Record_T instance to be logged.
+ * @return The `LOGGER_ERR_OK` or the error code.
  */
-// TODO: understand how to propagate errors
-extern void Logger_log(Logger_T self, Logger_Record_T record);
+extern Logger_Err_T Logger_logRecord(Logger_T self, Logger_Record_T record);
 
-// TODO: error handling
-#define _Logger_build(__self__, __level__, __fmt__, ...)                                                                                \
-    do {                                                                                                                                \
-        Logger_T self = __self__;                                                                                                       \
-        Logger_String_T message = Logger_String_from(__fmt__, __VA_ARGS__);                                                             \
-        Logger_Record_T record = Logger_Record_new(message, Logger_getName(self), __func__, __FILE__, __LINE__, time(NULL), __level__); \
-        Logger_log(self, record);                                                                                                       \
-        Logger_Record_delete(&record);                                                                                                  \
-        Logger_String_delete(&message);                                                                                                 \
-    } while (false)
+/**
+ * Construct and log a Logger_Record_T.
+ * This function should never be used directly, use the macros instead.
+ *
+ * Checked runtime errors:
+ *  - @param self must not be NULL.
+ *  - @param level must be in range LOGGER_LEVEL_DEBUG - LOGGER_LEVEL_FATAL.
+ *  - @param file must not be NULL.
+ *  - @param function must not be NULL.
+ *  - @param fmt must not be NULL.
+ *
+ * @param self The Logger_T instance.
+ * @param level The logging message level.
+ * @param file The name of the file in which the logging request was issued.
+ * @param line The line of the file in which the logging request was issued.
+ * @param function The name of the function in which the logging request was issued.
+ * @param timestamp The timestamp in which the logging request was issued (in milliseconds since 1970).
+ * @param fmt The printf-like fmt string.
+ * @param ...
+ * @return The `LOGGER_ERR_OK` or the error code.
+ */
+extern Logger_Err_T _Logger_log(
+        Logger_T self, Logger_Level_T level, const char *file, size_t line, const char *function, time_t timestamp,
+        const char *fmt, ...
+);
 
-#define Logger_logDebug(__self__, __fmt__, ...)     _Logger_build(__self__, LOGGER_LEVEL_DEBUG, __fmt__, __VA_ARGS__)
-#define Logger_logNotice(__self__, __fmt__, ...)    _Logger_build(__self__, LOGGER_LEVEL_NOTICE, __fmt__, __VA_ARGS__)
-#define Logger_logInfo(__self__, __fmt__, ...)      _Logger_build(__self__, LOGGER_LEVEL_INFO, __fmt__, __VA_ARGS__)
-#define Logger_logWarning(__self__, __fmt__, ...)   _Logger_build(__self__, LOGGER_LEVEL_WARNING, __fmt__, __VA_ARGS__)
-#define Logger_logError(__self__, __fmt__, ...)     _Logger_build(__self__, LOGGER_LEVEL_ERROR, __fmt__, __VA_ARGS__)
-#define Logger_logFatal(__self__, __fmt__, ...)     _Logger_build(__self__, LOGGER_LEVEL_FATAL, __fmt__, __VA_ARGS__)
+#define _LOGGER_TRACE                         __FILE__, __LINE__, __func__, time(NULL)
+#define Logger_log(xSelf, xLevel, xFmt, ...)  _Logger_log(xSelf, xLevel, _LOGGER_TRACE, xFmt, __VA_ARGS__)
+#define Logger_logDebug(xSelf, xFmt, ...)     _Logger_log(xSelf, LOGGER_LEVEL_DEBUG, _LOGGER_TRACE, xFmt, __VA_ARGS__)
+#define Logger_logNotice(xSelf, xFmt, ...)    _Logger_log(xSelf, LOGGER_LEVEL_NOTICE, _LOGGER_TRACE, xFmt, __VA_ARGS__)
+#define Logger_logInfo(xSelf, xFmt, ...)      _Logger_log(xSelf, LOGGER_LEVEL_INFO, _LOGGER_TRACE, xFmt, __VA_ARGS__)
+#define Logger_logWarning(xSelf, xFmt, ...)   _Logger_log(xSelf, LOGGER_LEVEL_WARNING, _LOGGER_TRACE, xFmt, __VA_ARGS__)
+#define Logger_logError(xSelf, xFmt, ...)     _Logger_log(xSelf, LOGGER_LEVEL_ERROR, _LOGGER_TRACE, xFmt, __VA_ARGS__)
+#define Logger_logFatal(xSelf, xFmt, ...)     _Logger_log(xSelf, LOGGER_LEVEL_FATAL, _LOGGER_TRACE, xFmt, __VA_ARGS__)
 
 #ifdef __cplusplus
 }

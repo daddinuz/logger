@@ -10,6 +10,7 @@
 #define LOGGER_LOGGER_HANDLER_INCLUDED
 
 #include <stdbool.h>
+#include "logger_err.h"
 #include "logger_record.h"
 #include "logger_formatter.h"
 
@@ -32,7 +33,7 @@ typedef struct Logger_Handler_T *Logger_Handler_T;
  *  - In case of OOM those functions will set errno to ENOMEM.
  *  - In case of I/O error those functions will set errno to EIO
  */
-typedef void (*Logger_Handler_PublishCallback_T)(Logger_Handler_T handler, Logger_Record_T record);
+typedef Logger_Err_T Logger_Handler_PublishCallback_T(Logger_Handler_T handler, Logger_Record_T record);
 
 /**
  * The functions with this signature are used to flush the buffer associated to the handler.
@@ -40,7 +41,7 @@ typedef void (*Logger_Handler_PublishCallback_T)(Logger_Handler_T handler, Logge
  * Note for implementation:
  *  - Those functions must assert that handler is not NULL.
  */
-typedef void (*Logger_Handler_FlushCallback_T)(Logger_Handler_T handler);
+typedef void Logger_Handler_FlushCallback_T(Logger_Handler_T handler);
 
 /**
  * The functions with this signature are used to close the buffer associated to the handler
@@ -49,7 +50,7 @@ typedef void (*Logger_Handler_FlushCallback_T)(Logger_Handler_T handler);
  * Note for implementation:
  *  - Those functions must assert that handler is not NULL.
  */
-typedef void (*Logger_Handler_CloseCallback_T)(Logger_Handler_T handler);
+typedef void Logger_Handler_CloseCallback_T(Logger_Handler_T handler);
 
 /**
  * Construct a Logger_Handler_T.
@@ -93,7 +94,7 @@ extern void Logger_Handler_delete(Logger_Handler_T *ref);
  * @param self The Logger_Handler_T instance.
  * @param record A Logger_Record_T instance.
  */
-extern void Logger_Handler_publish(Logger_Handler_T self, Logger_Record_T record);
+extern Logger_Err_T Logger_Handler_publish(Logger_Handler_T self, Logger_Record_T record);
 
 /**
  * Flush the buffer associated to the handler.

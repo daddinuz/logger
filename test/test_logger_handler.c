@@ -21,12 +21,13 @@ Logger_Formatter_T gFormatter = NULL;
 /*
  *
  */
-static void publishCallback(Logger_Handler_T handler, Logger_Record_T record) {
+static Logger_Err_T publishCallback(Logger_Handler_T handler, Logger_Record_T record) {
     assert_not_null(handler);
     assert_not_null(record);
     assert_equal(sut, handler);
     assert_equal(gRecord, record);
     gPublishCalls++;
+    return LOGGER_ERR_OK;
 }
 
 static void flushCallback(Logger_Handler_T handler) {
@@ -69,7 +70,7 @@ TRAITS(CanCreateALoggerHandler) {
             assert_equal(probeLevel >= EXPECTED_LEVEL, Logger_Handler_isLoggable(sut, gRecord));
         }
     }
-    
+
     Logger_Handler_setFormatter(sut, gFormatter);
     assert_equal(gFormatter, Logger_Handler_getFormatter(sut));
 
@@ -104,10 +105,7 @@ void traits_setup(void) {
     gFlushCalls = 0;
     gCloseCalls = 0;
     sut = NULL;
-    gRecord = Logger_Record_new(
-            Logger_String_new("EXPECTED_MESSAGE"), "EXPECTED_LOGGER_NAME", "EXPECTED_FUNCTION", "EXPECTED_FILE",
-            0, 0, LOGGER_LEVEL_DEBUG
-    );
+    gRecord = Logger_Record_new("EXPECTED_LOGGER_NAME", LOGGER_LEVEL_DEBUG, "EXPECTED_FILE", 0, "EXPECTED_FUNCTION", 0, Logger_String_new("EXPECTED_MESSAGE"));
     assert_not_null(gRecord);
     assert_not_null(Logger_Record_getMessage(gRecord));
     gFormatter = Logger_Formatter_newSimpleFormatter();

@@ -6,6 +6,7 @@
  * Date:   August 18, 2017
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include "logger_builtin_loggers.h"
 
@@ -13,7 +14,15 @@
  *
  */
 int main() {
-    Logger_T gLogger = Logger_newFileLogger("FileLogger", LOGGER_LEVEL_DEBUG, "example_file_logger.log");
+    Logger_T gLogger = NULL;
+    {
+        Logger_Result_T result = Logger_newFileLogger("FileLogger", LOGGER_LEVEL_DEBUG, "example_file_logger.log");
+        if (LOGGER_ERR_OK != result.err) {
+            fprintf(stderr, "At %s:%d\n%s\n", __FILE__, __LINE__, Logger_Err_gerString(result.err));
+            exit(EXIT_FAILURE);
+        }
+        gLogger = result.logger;
+    }
 
     Logger_logDebug(gLogger, "%s", "Debug log message");
     Logger_logNotice(gLogger, "%s", "Notice log message");

@@ -16,6 +16,11 @@
 extern "C" {
 #endif
 
+typedef struct Logger_Handler_Result_T {
+    Logger_Err_T err;
+    Logger_Handler_T handler;
+} Logger_Handler_Result_T;
+
 /**
  * Construct a Logger_Handler_T.
  *
@@ -30,7 +35,7 @@ extern "C" {
  * @param formatter The formatter for this handler.
  * @return A new instance of Logger_Handler_T.
  */
-extern Logger_Handler_T Logger_Handler_newConsoleHandler(
+extern Logger_Handler_Result_T Logger_Handler_newConsoleHandler(
         Logger_Level_T level, Logger_Formatter_T formatter, Logger_OStream_T stream
 );
 
@@ -49,7 +54,7 @@ extern Logger_Handler_T Logger_Handler_newConsoleHandler(
  * @param formatter The formatter for this handler.
  * @return A new instance of Logger_Handler_T.
  */
-extern Logger_Handler_T Logger_Handler_newFileHandler(
+extern Logger_Handler_Result_T Logger_Handler_newFileHandler(
         Logger_Level_T level, Logger_Formatter_T formatter, const char *filePath
 );
 
@@ -69,7 +74,7 @@ extern Logger_Handler_T Logger_Handler_newFileHandler(
  * @param bytesBeforeRotation The number of bytes to be written before rotating.
  * @return A new instance of Logger_Handler_T.
  */
-extern Logger_Handler_T Logger_Handler_newRotatingFileHandler(
+extern Logger_Handler_Result_T Logger_Handler_newRotatingFileHandler(
         Logger_Level_T level, Logger_Formatter_T formatter, const char *filePath, size_t bytesBeforeRotation
 );
 
@@ -89,7 +94,7 @@ extern Logger_Handler_T Logger_Handler_newRotatingFileHandler(
  * @param bytesBeforeWrite The number of bytes before performing a write.
  * @return A new instance of Logger_Handler_T.
  */
-extern Logger_Handler_T Logger_Handler_newMemoryFileHandler(
+extern Logger_Handler_Result_T Logger_Handler_newMemoryFileHandler(
         Logger_Level_T level, Logger_Formatter_T formatter, const char *filePath, size_t bytesBeforeWrite
 );
 

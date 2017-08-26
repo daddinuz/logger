@@ -65,10 +65,7 @@ int main() {
 void traits_setup(void) {
     gFormatRecordCalls = 0;
     gDeleteFormattedRecordCalls = 0;
-    gRecord = Logger_Record_new(
-            Logger_String_new("EXPECTED_MESSAGE"), "EXPECTED_LOGGER_NAME", "EXPECTED_FUNCTION", "EXPECTED_FILE",
-            0, 0, LOGGER_LEVEL_NOTICE
-    );
+    gRecord = Logger_Record_new("EXPECTED_LOGGER_NAME", LOGGER_LEVEL_NOTICE, "EXPECTED_FILE", 0, "EXPECTED_FUNCTION", 0, Logger_String_new("EXPECTED_MESSAGE"));
     assert_not_null(gRecord);
 }
 

@@ -7,6 +7,7 @@
  */
 
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <assert.h>
 #include <errno.h>
@@ -156,15 +157,61 @@ bool Logger_isLoggable(Logger_T self, Logger_Level_T level) {
     return level >= self->level;
 }
 
-// TODO: understand how to propagate errors
-void Logger_log(Logger_T self, Logger_Record_T record) {
+Logger_Err_T Logger_logRecord(Logger_T self, Logger_Record_T record) {
     assert(self);
     assert(record);
+    Logger_Err_T err = LOGGER_ERR_OK;
     if (Logger_isLoggable(self, Logger_Record_getLevel(record))) {
         for (Logger_HandlersList_T base = self->handlers; base; base = base->next) {
             if (Logger_Handler_isLoggable(base->handler, record)) {
-                Logger_Handler_publish(base->handler, record);
+                err = Logger_Handler_publish(base->handler, record);
+                if (LOGGER_ERR_OK != err) {
+                    break;
+                }
             }
         }
     }
+    return err;
+}
+
+Logger_Err_T _Logger_log(
+        Logger_T self, Logger_Level_T level, const char *file, size_t line, const char *function, time_t timestamp,
+        const char *fmt, ...
+) {
+    assert(self);
+    assert(file);
+    assert(function);
+    assert(LOGGER_LEVEL_DEBUG <= level && level <= LOGGER_LEVEL_FATAL);
+    assert(fmt);
+
+    va_list args;
+    Logger_Err_T err;
+    Logger_String_T message = NULL;
+    Logger_Record_T record = NULL;
+
+    va_start(args, fmt);
+    do {
+        message = Logger_String_fromArgumentsList(fmt, args);
+        if (!message) {
+            err = LOGGER_ERR_OUT_OF_MEMORY;
+            break;
+        }
+
+        record = Logger_Record_new(Logger_getName(self), level, file, line, function, timestamp, message);
+        if (!record) {
+            err = LOGGER_ERR_OUT_OF_MEMORY;
+            break;
+        }
+
+        err = Logger_logRecord(self, record);
+    } while (false);
+    va_end(args);
+
+    if (record) {
+        Logger_Record_delete(&record);
+    }
+    if (message) {
+        Logger_String_delete(&message);
+    }
+    return err;
 }

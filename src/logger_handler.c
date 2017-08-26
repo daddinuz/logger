@@ -15,9 +15,9 @@ struct Logger_Handler_T {
     void *context;
     Logger_Level_T level;
     Logger_Formatter_T formatter;
-    Logger_Handler_PublishCallback_T publishCallback;
-    Logger_Handler_FlushCallback_T flushCallback;
-    Logger_Handler_CloseCallback_T closeCallback;
+    Logger_Handler_PublishCallback_T *publishCallback;
+    Logger_Handler_FlushCallback_T *flushCallback;
+    Logger_Handler_CloseCallback_T *closeCallback;
 };
 
 Logger_Handler_T Logger_Handler_new(
@@ -52,10 +52,10 @@ void Logger_Handler_delete(Logger_Handler_T *ref) {
     *ref = NULL;
 }
 
-void Logger_Handler_publish(Logger_Handler_T self, Logger_Record_T record) {
+Logger_Err_T Logger_Handler_publish(Logger_Handler_T self, Logger_Record_T record) {
     assert(self);
     assert(record);
-    self->publishCallback(self, record);
+    return self->publishCallback(self, record);
 }
 
 void Logger_Handler_flush(Logger_Handler_T self) {

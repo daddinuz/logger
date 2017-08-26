@@ -30,7 +30,7 @@ typedef struct Logger_Formatter_T *Logger_Formatter_T;
  *  - Those functions must assert that record is not NULL.
  *  - Those functions must return NULL and set errno to ENOMEM in case of OOM.
  */
-typedef char *(*Logger_Formatter_formatRecordCallback_T)(Logger_Record_T record);
+typedef char *Logger_Formatter_formatRecordCallback_T(Logger_Record_T record);
 
 /**
  * The functions with this signature are used to free the memory allocated by Logger_Formatter_formatRecordCallback_T.
@@ -38,7 +38,7 @@ typedef char *(*Logger_Formatter_formatRecordCallback_T)(Logger_Record_T record)
  * Note for implementation:
  *  - Those functions must consider the case in which formattedRecord is NULL.
  */
-typedef void (*Logger_Formatter_deleteFormattedRecordCallback_T)(char *formattedRecord);
+typedef void Logger_Formatter_deleteFormattedRecordCallback_T(char *formattedRecord);
 
 /**
  * Construct a Logger_Formatter_T.

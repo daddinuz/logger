@@ -9,6 +9,8 @@
 #ifndef LOGGER_LOGGER_STRING_INCLUDED
 #define LOGGER_LOGGER_STRING_INCLUDED
 
+#include <stdarg.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,6 +42,19 @@ extern Logger_String_T Logger_String_new(const char *str);
  * @return A new instance of Logger_String_T.
  */
 extern Logger_String_T Logger_String_from(const char *fmt, ...);
+
+/**
+ * Construct a Logger_String_T from a printf-like format.
+ *
+ * Checked runtime errors:
+ *  - @param fmt must not be NULL.
+ *  - @param args must not be NULL.
+ *
+ * @param fmt The printf-like fmt string.
+ * @param args The arguments list.
+ * @return A new instance of Logger_String_T.
+ */
+extern Logger_String_T Logger_String_fromArgumentsList(const char *fmt, va_list args);
 
 /**
  * Destruct a Logger_String_T.

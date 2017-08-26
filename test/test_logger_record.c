@@ -27,15 +27,7 @@ TRAITS(CanCreateALoggerRecord) {
     const Logger_Level_T EXPECTED_LEVEL[] = {LOGGER_LEVEL_DEBUG, LOGGER_LEVEL_FATAL};
 
     // Test constructor
-    Logger_Record_T sut = Logger_Record_new(
-            EXPECTED_MESSAGE[0],
-            EXPECTED_LOGGER_NAME[0],
-            EXPECTED_FUNCTION[0],
-            EXPECTED_FILE[0],
-            EXPECTED_LINE[0],
-            EXPECTED_TIMESTAMP[0],
-            EXPECTED_LEVEL[0]
-    );
+    Logger_Record_T sut = Logger_Record_new(EXPECTED_LOGGER_NAME[0], EXPECTED_LEVEL[0], EXPECTED_FILE[0], EXPECTED_LINE[0], EXPECTED_FUNCTION[0], EXPECTED_TIMESTAMP[0], EXPECTED_MESSAGE[0]);
     assert_not_null(sut);
 
     // Test getters

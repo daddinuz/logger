@@ -12,8 +12,8 @@
 #include "logger_formatter.h"
 
 struct Logger_Formatter_T {
-    Logger_Formatter_formatRecordCallback_T formatRecordCallback;
-    Logger_Formatter_deleteFormattedRecordCallback_T deleteFormattedRecordCallback;
+    Logger_Formatter_formatRecordCallback_T *formatRecordCallback;
+    Logger_Formatter_deleteFormattedRecordCallback_T *deleteFormattedRecordCallback;
 };
 
 Logger_Formatter_T Logger_Formatter_new(

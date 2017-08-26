@@ -15,6 +15,11 @@
 extern "C" {
 #endif
 
+typedef struct Logger_Result_T {
+    Logger_Err_T err;
+    Logger_T logger;
+} Logger_Result_T;
+
 /**
  * Construct a Logger_T using ConsoleHandler as handler and SimpleFormatter as formatter.
  * The stream used for ConsoleHandler will be set to stdout.
@@ -28,7 +33,7 @@ extern "C" {
  * @param level The logger and handler level.
  * @return A new Logger_T instance.
  */
-extern Logger_T Logger_newStdoutLogger(const char *name, Logger_Level_T level);
+extern Logger_Result_T Logger_newStdoutLogger(const char *name, Logger_Level_T level);
 
 /**
  * Construct a Logger_T using ConsoleHandler as handler and SimpleFormatter as formatter.
@@ -43,7 +48,7 @@ extern Logger_T Logger_newStdoutLogger(const char *name, Logger_Level_T level);
  * @param level The logger and handler level.
  * @return A new Logger_T instance.
  */
-extern Logger_T Logger_newStderrLogger(const char *name, Logger_Level_T level);
+extern Logger_Result_T Logger_newStderrLogger(const char *name, Logger_Level_T level);
 
 /**
  * Construct a Logger_T using FileHandler as handler and SimpleFormatter as formatter.
@@ -60,7 +65,7 @@ extern Logger_T Logger_newStderrLogger(const char *name, Logger_Level_T level);
  * @param filePath The path to the file in which the handler will write.
  * @return A new Logger_T instance.
  */
-extern Logger_T Logger_newFileLogger(const char *name, Logger_Level_T level, const char *filePath);
+extern Logger_Result_T Logger_newFileLogger(const char *name, Logger_Level_T level, const char *filePath);
 
 /**
  * Construct a Logger_T using RotatingFileHandler as handler and SimpleFormatter as formatter.
@@ -78,7 +83,7 @@ extern Logger_T Logger_newFileLogger(const char *name, Logger_Level_T level, con
  * @param bytesBeforeRotation The number of bytes to be written before rotating.
  * @return A new Logger_T instance.
  */
-extern Logger_T
+extern Logger_Result_T
 Logger_newRotatingFileLogger(const char *name, Logger_Level_T level, const char *filePath, size_t bytesBeforeRotation);
 
 /**
@@ -97,7 +102,7 @@ Logger_newRotatingFileLogger(const char *name, Logger_Level_T level, const char 
  * @param bytesBeforeWrite The number of bytes before performing a write.
  * @return A new Logger_T instance.
  */
-extern Logger_T
+extern Logger_Result_T
 Logger_newMemoryFileLogger(const char *name, Logger_Level_T level, const char *filePath, size_t bytesBeforeWrite);
 
 #ifdef __cplusplus

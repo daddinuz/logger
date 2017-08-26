@@ -22,8 +22,8 @@ struct Logger_Record_T {
 };
 
 Logger_Record_T Logger_Record_new(
-        Logger_String_T message, const char *loggerName, const char *function, const char *file,
-        size_t line, time_t timestamp, Logger_Level_T level
+        const char *loggerName, Logger_Level_T level, const char *file, size_t line, const char *function,
+        time_t timestamp, Logger_String_T message
 ) {
     assert(message);
     assert(loggerName);
