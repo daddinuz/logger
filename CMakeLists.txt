@@ -18,6 +18,7 @@ include_directories(${PROJECT_SOURCE_DIR}/deps)
 # Dependencies
 ###
 include(${PROJECT_SOURCE_DIR}/deps/sds/sds.cmake)
+include(${PROJECT_SOURCE_DIR}/deps/traits-unit/traits-unit.cmake)
 
 #####
 # Archive
@@ -34,7 +35,7 @@ file(GLOB TEST_SOURCES ${PROJECT_SOURCE_DIR}/test/test_*.c)
 foreach (source_file ${TEST_SOURCES})
     get_filename_component(target ${source_file} NAME_WE)
     add_executable(${target} ${source_file})
-    target_link_libraries(${target} PRIVATE ${PROJECT_NAME})
+    target_link_libraries(${target} PRIVATE ${PROJECT_NAME} traits-unit)
     add_test(${target} ${target})
 endforeach (source_file ${TEST_SOURCES})
 

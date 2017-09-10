@@ -54,3 +54,6 @@ cmake-build-*/
 
 run_tests.sh
 run_examples.sh
+
+# Log files
+*.log

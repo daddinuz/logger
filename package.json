@@ -1,0 +1,44 @@
+{
+  "name": "logger",
+  "repo": "daddinuz/logger",
+  "version": "0.3.0",
+  "license": "MIT",
+  "description": "A logging library written in C99.",
+  "keywords": [
+    "log",
+    "logs",
+    "logger",
+    "logging"
+  ],
+  "development": {
+    "daddinuz/traits": "2.1.0",
+    "daddinuz/traits-unit": "1.0.1"
+  },
+  "src": [
+    "src/logger.h",
+    "src/logger_err.h",
+    "src/logger_level.h",
+    "src/logger_stream.h",
+    "src/logger_string.h",
+    "src/logger_record.h",
+    "src/logger_formatter.h",
+    "src/logger_handler.h",
+    "src/logger_builtin_loggers.h",
+    "src/logger_builtin_formatters.h",
+    "src/logger_builtin_handlers.h",
+    "deps/sds/sdsalloc.h",
+    "deps/sds/sds.h",
+    "src/logger.c",
+    "src/logger_err.c",
+    "src/logger_level.c",
+    "src/logger_string.c",
+    "src/logger_record.c",
+    "src/logger_formatter.c",
+    "src/logger_handler.c",
+    "src/logger_builtin_loggers.c",
+    "src/logger_builtin_formatters.c",
+    "src/logger_builtin_handlers.c",
+    "deps/sds/sds.c"
+  ],
+  "makefile": "logger.cmake"
+}

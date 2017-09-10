@@ -1,0 +1,24 @@
+{
+  "name": "traits-unit",
+  "repo": "daddinuz/traits-unit",
+  "version": "1.0.1",
+  "license": "MIT",
+  "description": "Unittest framework written in C99.",
+  "keywords": [
+    "test",
+    "unittest",
+    "framework",
+    "unit-test",
+    "unittesting",
+    "unit-testing",
+    "test-framework"
+  ],
+  "dependencies": {
+    "daddinuz/traits": "2.1.0"
+  },
+  "src": [
+    "src/traits-unit.h",
+    "src/traits-unit.c"
+  ],
+  "makefile": "traits-unit.cmake"
+}
