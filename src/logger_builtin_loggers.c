@@ -12,10 +12,10 @@
 #include "logger_builtin_loggers.h"
 
 #define NEW_LOGGER_FUNCTION_TEMPLATE(__argName__, __argLevel__, __argFunction__, ...)   \
+    Logger_Handler_Result_T result;                                                     \
     Logger_Err_T err = LOGGER_ERR_OK;                                                   \
     Logger_T self = NULL;                                                               \
     Logger_Formatter_T formatter = NULL;                                                \
-    Logger_Handler_Result_T result = {0};                                               \
                                                                                         \
     formatter = Logger_Formatter_newSimpleFormatter();                                  \
     if (!formatter) {                                                                   \
