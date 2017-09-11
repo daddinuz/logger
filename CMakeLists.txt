@@ -38,6 +38,7 @@ foreach (source_file ${TEST_SOURCES})
     target_link_libraries(${target} PRIVATE ${PROJECT_NAME} traits-unit)
     add_test(${target} ${target})
 endforeach (source_file ${TEST_SOURCES})
+enable_testing()
 
 #####
 # Examples
