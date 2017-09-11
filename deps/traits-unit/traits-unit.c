@@ -142,8 +142,7 @@ int main(int argc, char *argv[]) {
             traits_unit_trait_t *trait = NULL;
             for (int x = 1; x < argc; x++) {
                 bool found = false;
-                for (size_t y = 0;
-                     (trait = &traits_unit_subject.traits[y]) && trait->trait_name && trait->features; y++) {
+                for (size_t y = 0; (trait = &traits_unit_subject.traits[y]) && trait->trait_name; y++) {
                     if (0 == strcmp(trait->trait_name, argv[x])) {
                         found = true;
                         traits_list[index++] = trait;
@@ -170,7 +169,7 @@ int main(int argc, char *argv[]) {
         buffer = traits_unit_buffer_new(TRAITS_UNIT_BUFFER_CAPACITY);
         traits_unit_print(indentation_level, "Describing: %s\n", traits_unit_subject.subject);
         indentation_level += TRAITS_UNIT_INDENTATION_STEP;
-        for (size_t i = 0; (trait = traits_list[i]) && trait->trait_name && trait->features; i++) {
+        for (size_t i = 0; (trait = traits_list[i]) && trait->trait_name; i++) {
             traits_unit_trait_result_t trait_result = traits_unit_run_trait(indentation_level, trait, buffer);
             counter_succeed += trait_result.succeed;
             counter_skipped += trait_result.skipped;
@@ -306,7 +305,8 @@ void traits_unit_teardown_on_exit(traits_unit_feature_t *feature, void *context)
 traits_unit_trait_result_t
 traits_unit_run_trait(size_t indentation_level, traits_unit_trait_t *trait, traits_unit_buffer_t *buffer) {
 
-    traits_unit_trait_result_t trait_result = {0};
+    traits_unit_trait_result_t trait_result;
+    memset(&trait_result, 0, sizeof(trait_result));
     traits_unit_feature_t *feature = NULL;
     traits_unit_print(indentation_level, "Trait: %s\n", trait->trait_name);
     indentation_level += TRAITS_UNIT_INDENTATION_STEP;
