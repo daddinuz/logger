@@ -1,7 +1,7 @@
 {
   "name": "logger",
   "repo": "daddinuz/logger",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "MIT",
   "description": "A logging library written in C99.",
   "keywords": [
